@@ -1,4 +1,4 @@
-## netshoot: a Docker Networking Trouble-shooting Swiss-Army Container
+## netshoot: a Docker network trouble-shooting swiss-army container
 
 **Purpose:** Docker network tshooting can be difficult for network engineers. With proper understanding of how Docker networking works and the right set of tools, you can troubleshoot and resolve these networking issues. The `netshoot` container has a set of powerful networking tshooting tools that can be used to troubleshoot Docker networking issues. 
 
