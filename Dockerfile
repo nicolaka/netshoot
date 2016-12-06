@@ -1,7 +1,7 @@
 FROM alpine:3.4
 
 RUN set -ex \
-    && echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
+    && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && apk update \
     && apk add --no-cache \
     tcpdump \
@@ -18,7 +18,8 @@ RUN set -ex \
     strace \ 
     curl \
     ethtool \
-    ipvsadm 
+    ipvsadm \
+    ngrep
 
 
 # apparmor issue #14140
