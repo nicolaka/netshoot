@@ -7,24 +7,20 @@ RUN set -ex \
     tcpdump \
     bridge-utils \
     netcat-openbsd \
-    util-linux \ 
-    iperf \
+    util-linux \
     iptables \
     iputils \
     iproute2 \
     iftop \
     drill \
-    apache2-utils \    
-    strace \ 
+    apache2-utils \
+    strace \
     curl \
     ethtool \
     ipvsadm \
-    ngrep
-
-
+    ngrep \
+    nmap
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 CMD ["sh"]
-
-

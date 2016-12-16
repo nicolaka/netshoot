@@ -43,6 +43,9 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
   * iputils 
   * curl
   * ethtool
+  * nmap
+  * ipvs
+  * ngrep
 
 
 ## iperf 
