@@ -19,6 +19,7 @@ RUN set -ex \
     ethtool \
     ipvsadm \
     ngrep \
+    iperf \
     nmap
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
