@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
 RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
