@@ -20,7 +20,8 @@ RUN set -ex \
     ipvsadm \
     ngrep \
     iperf \
-    nmap
+    nmap \
+    conntrack-tools
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
