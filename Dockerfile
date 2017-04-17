@@ -25,4 +25,6 @@ RUN set -ex \
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
+ADD netgen.sh /usr/local/bin/netgen
+
 CMD ["sh"]
