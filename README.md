@@ -149,6 +149,26 @@ tcp        0      0 0.0.0.0:9999            0.0.0.0:*               LISTEN      
 udp        0      0 127.0.0.11:39552        0.0.0.0:*                           -
 ```
 
+##  nmap
+`nmap` ("Network Mapper") is an open source tool for network exploration and security auditing. It is very useful for scanning to see which ports are open between a given set of hosts. This is a common thing to check for when installing Swarm or UCP because a range of ports is required for cluster communication. The command analyzes the connection pathway between the host where `nmap` is running and the given target address.
+
+```
+🐳  → docker run -it --privileged nicolaka/netshoot nmap -p 12376-12390 -dd 172.31.24.25
+
+...
+Discovered closed port 12388/tcp on 172.31.24.25
+Discovered closed port 12379/tcp on 172.31.24.25
+Discovered closed port 12389/tcp on 172.31.24.25
+Discovered closed port 12376/tcp on 172.31.24.25
+...
+```
+There are several states that ports will be discovered as:
+
+- `open`: the pathway to the port is open and there is an application listening on this port.
+- `closed`: the pathway to the port is open but there is no application listening on this port.
+- `filtered`: the pathway to the port is closed, blocked by a firewall, routing rules, or host-based rules.
+
+
 ## iftop
 
 Purpose: iftop does for network usage what top does for CPU usage. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts.
