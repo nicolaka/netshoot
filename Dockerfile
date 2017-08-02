@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.6
 
 RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -21,7 +21,8 @@ RUN set -ex \
     ngrep \
     iperf \
     nmap \
-    conntrack-tools
+    conntrack-tools \
+    socat
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
