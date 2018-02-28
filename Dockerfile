@@ -21,6 +21,7 @@ RUN set -ex \
     ngrep \
     iperf \
     nmap \
+    nmap-nping \
     conntrack-tools \
     socat
 # apparmor issue #14140
