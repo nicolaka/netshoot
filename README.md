@@ -55,7 +55,7 @@ Purpose : test networking performance between two containers/hosts.
 Create Overlay network:
 
 ```
-$docker network create -d overlay perf-test
+$ docker network create -d overlay perf-test
 ```
 Launch two containers:
 
