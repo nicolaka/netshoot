@@ -1,7 +1,6 @@
-FROM alpine:3.6
+FROM alpine:3.7
 
 RUN set -ex \
-    && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && apk update \
     && apk add --no-cache \
     tcpdump \
