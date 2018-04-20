@@ -23,7 +23,21 @@ RUN set -ex \
     nmap \
     nmap-nping \
     conntrack-tools \
-    socat
+    socat \
+    busybox-extras \
+    tcptraceroute \
+    mtr \
+    fping \
+    liboping \
+    iptraf-ng \
+    dhcping \
+    nmap-nping \
+    net-snmp-tools \
+    python2 \
+    py2-virtualenv \
+    py-crypto \
+    scapy \
+    vim
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
