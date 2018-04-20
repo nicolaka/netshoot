@@ -1,7 +1,6 @@
-FROM alpine:3.6
+FROM alpine:3.7
 
 RUN set -ex \
-    && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
     && apk update \
     && apk add --no-cache \
     tcpdump \
@@ -23,7 +22,21 @@ RUN set -ex \
     nmap \
     nmap-nping \
     conntrack-tools \
-    socat
+    socat \
+    busybox-extras \
+    tcptraceroute \
+    mtr \
+    fping \
+    liboping \
+    iptraf-ng \
+    dhcping \
+    nmap-nping \
+    net-snmp-tools \
+    python2 \
+    py2-virtualenv \
+    py-crypto \
+    scapy \
+    vim
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
