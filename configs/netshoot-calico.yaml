@@ -1,0 +1,59 @@
+apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  namespace: kube-system
+  name: netshoot-calico-deploy
+  labels:
+    app: netshoot-calico
+spec:
+  selector:
+    matchLabels:
+      app: netshoot
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: netshoot
+    spec:
+      serviceAccount: cni-plugin
+      serviceAccountName: cni-plugin
+      hostNetwork: true
+      containers:
+      - image: nicolaka/netshoot
+        name: netshoot
+        command: ["ping","localhost"]
+        volumeMounts:
+        - mountPath: /calico-secrets
+          name: etcd-certs
+        - mountPath: /var/run/calico/bird.ctl
+          name: bird-ctl
+        env:
+        - name: ETCD_ENDPOINTS
+          value: "https://localhost:12378"
+        - name: ETCD_CA_CERT_FILE
+          valueFrom:
+            configMapKeyRef:
+              key: etcd_ca
+              name: calico-config
+        - name: ETCD_KEY_FILE
+          valueFrom:
+            configMapKeyRef:
+              key: etcd_key
+              name: calico-config
+        - name: ETCD_CERT_FILE
+          valueFrom:
+            configMapKeyRef:
+              key: etcd_cert
+              name: calico-config
+      volumes:
+        - name: etcd-certs
+          secret:
+           defaultMode: 420
+           secretName: calico-etcd-secrets
+        - name: bird-ctl
+          hostPath:
+            path: /var/run/calico/bird.ctl
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
+

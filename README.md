@@ -1,8 +1,19 @@
-## netshoot: a Docker network trouble-shooting swiss-army container
+## netshoot: a Docker + Kubernetes network trouble-shooting swiss-army container
 
-**Purpose:** Docker network tshooting can be difficult for network engineers. With proper understanding of how Docker networking works and the right set of tools, you can troubleshoot and resolve these networking issues. The `netshoot` container has a set of powerful networking tshooting tools that can be used to troubleshoot Docker networking issues. 
+```
+                    dP            dP                           dP
+                    88            88                           88
+88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
+88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
+88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
+dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
+```
+
+**Purpose:** Docker and Kubernetes network troubleshooting can become complex. With proper understanding of how Docker and Kubernetes networking works and the right set of tools, you can troubleshoot and resolve these networking issues. The `netshoot` container has a set of powerful networking tshooting tools that can be used to troubleshoot Docker networking issues. Along with these tools come a set of use-cases that show how this container can be used in real-world scenarios.
 
 **Network Namespaces:** Before starting to use this tool, it's important to go over one key topic: **Network Namespaces**. Network namespaces provide isolation of the system resources associated with networking. Docker uses network and other type of namespaces (`pid`,`mount`,`user`..etc) to create an isolated environment for each container. Everything from interfaces, routes, and IPs is completely isolated within the network namespace of the container. 
+
+Kubernetes also uses network namespaces. Kubelets creates a network namespace per pod where all containers in that pod share that same network namespace (eths,IP, tcp sockets...etc). This is a key difference between Docker containers and Kubernetes pods.
 
 Cool thing about namespaces is that you can switch between them. You can enter a different container's network namespace, perform some troubleshooting on its network's stack with tools that aren't even installed on that container. Additionally, `netshoot` can be used to troubleshoot the host itself by using the host's network namespace. This allows you to perform any troubleshooting without installing any new packages directly on the host or your application's package. 
 
@@ -31,22 +42,116 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
 
 **Included Packages:** The following packages are included in `netshoot`. We'll go over some with some sample use-cases.
 
-  * iperf 
-  * tcpdump 	
-  * netstat
-  * iftop 
-  * drill
-  * netcat-openbsd 
-  * iproute2
-  * util-linux(nsenter) 
-  * bridge-utils 
-  * iputils 
-  * curl
-  * ethtool
-  * nmap
-  * ipvs
-  * ngrep
+    tcpdump 
+    bridge-utils 
+    netcat-openbsd 
+    util-linux 
+    iptables 
+    iputils 
+    iproute2 
+    iftop 
+    drill 
+    apache2-utils 
+    strace 
+    curl 
+    ethtool 
+    ipvsadm 
+    ngrep 
+    iperf 
+    nmap 
+    nmap-nping 
+    conntrack-tools 
+    socat 
+    busybox-extras 
+    tcptraceroute 
+    mtr 
+    fping 
+    liboping 
+    iptraf-ng 
+    dhcping 
+    nmap-nping 
+    net-snmp-tools 
+    python2 
+    py2-virtualenv 
+    py-crypto 
+    scapy 
+    vim 
+    bird 
+    bash
+    calicoctl
+    
+    
 
+##**Docker EE 2.0 + Kubernetes Use Cases:** 
+Here's a list of use-cases that can help you understand when and how to use this container to solve networking issues in your Docker cluster. Please feel free to add your own use-case where you used `netshoot` to investigate, trouble-shoot, or just learn more about your environment!!!
+
+
+## Managing Kubernetes Calico CNI with calicoctl
+
+In Docker Enterprise Edition, and in so many Kubernetes-based solutions, [Calico](https://www.projectcalico.org/) is used as the default CNI plugin of choice. This means that all the pod networking related resources ( IP assignment, routing, network policies, etc..) is handled by Calico. [calicoctl](https://github.com/projectcalico/calicoctl) is a cli tool to makes it easy to manage Calico network and security policy, as well as other Calico configurations. The calicoctl tool talks directly to `etcd`, so it's often not possible or recommended to expose etcd outside of the Kubernetes cluster. A recommended way to use calicoctl is to run it on a the master node inside the cluster. 
+
+Assuming you are running Docker EE 2.0 (although this should work on any Kuberenetes cluster with Calico installed), run the `netshoot` as a deployment using [this deployment](configs/netshoot-calico.yaml). This deployment will use the `kube-system` namespace.
+
+```
+# Note: This step assumes you loaded UCP client bundle and have kubectl working as expected.
+🐳  → kubectl apply -f netshoot-calico.yaml
+```
+
+This deployment will deploy a single pod on a master node and automatically load up etcd certs so you can easily start using calicoctl. Now it's time to exec into the pod:
+
+```
+🐳  → kubectl get pod --selector=app=netshoot -n kube-system
+NAME                                      READY     STATUS    RESTARTS   AGE
+netshoot-calico-deploy-57b8896459-rzqz4   1/1       Running   0          1h
+```
+
+Now exec into this pod and use the calicoctl directly without any further configurations! Full documentations on using the calicoctl tool is found [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/commands/).
+
+```
+🐳  → kubectl exec -it -n kube-system netshoot-calico-deploy-57b8896459-rzqz4 -- /bin/bash -l
+                    dP            dP                           dP
+                    88            88                           88
+88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
+88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
+88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
+dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
+
+Welcome to Netshoot! (github.com/nicolaka/netshoot)
+root @ /
+ [1] 🐳  → calicoctl get wep
+WORKLOAD                            NODE              NETWORKS             INTERFACE
+nginx-deployment-569477d6d8-98xv5   ip-10-56-14-210   192.168.134.207/32   calia756b40818a
+netshoot-deploy-6bffc797bf-cfgpp    ip-10-56-17-161   192.168.63.80/32     cali50d3753ec26
+nginx-deployment-569477d6d8-6klz6   ip-10-56-17-161   192.168.63.79/32     caliaef53a8ccae
+
+
+root @ /
+ [2] 🐳  → calicoctl get ippool
+NAME                  CIDR
+default-ipv4-ippool   192.168.0.0/16
+
+
+root @ /
+ [3] 🐳  → calicoctl get bgpconfig -o yaml
+apiVersion: projectcalico.org/v3
+items:
+- apiVersion: projectcalico.org/v3
+  kind: BGPConfiguration
+  metadata:
+    creationTimestamp: 2018-05-03T18:04:13Z
+    name: default
+    resourceVersion: "4519634"
+    uid: 631aa7d6-4efc-11e8-92d5-06982eb5f90e
+  spec:
+    asNumber: 63400
+    logSeverityScreen: Info
+    nodeToNodeMeshEnabled: false
+kind: BGPConfigurationList
+metadata:
+  resourceVersion: "6152496"
+```
+
+##**Docker + Swarm Use Cases:** 
 
 ## iperf 
 
