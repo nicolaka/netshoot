@@ -40,7 +40,8 @@ RUN set -ex \
     scapy \
     vim \
     bird \
-    bash 
+    bash \
+    bind-tools 
 
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
