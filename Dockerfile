@@ -5,43 +5,43 @@ RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
     && apk update \
     && apk add --no-cache \
-    tcpdump \
-    bridge-utils \
-    netcat-openbsd \
-    util-linux \
-    iptables \
-    iputils \
-    iproute2 \
-    iftop \
-    drill \
     apache2-utils \
-    strace \
+    bash \
+    bind-tools \
+    bird \
+    bridge-utils \
+    busybox-extras \
+    conntrack-tools \
     curl \
+    dhcping \
+    drill \
     ethtool \
-    ipvsadm \
-    ngrep \
+    fping \
+    iftop \
     iperf \
+    iproute2 \
+    iptables \
+    iptraf-ng \
+    iputils \
+    ipvsadm \
+    liboping \
+    mtr \
+    net-snmp-tools \
+    netcat-openbsd \
+    ngrep \
     nmap \
     nmap-nping \
-    conntrack-tools \
-    socat \
-    busybox-extras \
-    tcptraceroute \
-    mtr \
-    fping \
-    liboping \
-    iptraf-ng \
-    dhcping \
     nmap-nping \
-    net-snmp-tools \
-    python2 \
-    py2-virtualenv \
     py-crypto \
+    py2-virtualenv \
+    python2 \
     scapy \
-    vim \
-    bird \
-    bash \
-    bind-tools 
+    socat \
+    strace \
+    tcpdump \
+    tcptraceroute \
+    util-linux \
+    vim
 
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
