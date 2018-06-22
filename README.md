@@ -42,43 +42,43 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
 
 **Included Packages:** The following packages are included in `netshoot`. We'll go over some with some sample use-cases.
 
-    tcpdump 
-    bridge-utils 
-    netcat-openbsd 
-    util-linux 
-    iptables 
-    iputils 
-    iproute2 
-    iftop 
-    drill 
     apache2-utils 
-    strace 
+    bash
+    bird 
+    bridge-utils 
+    busybox-extras 
+    calicoctl
+    conntrack-tools 
     curl 
+    dhcping 
+    drill 
     ethtool 
-    ipvsadm 
-    ngrep 
+    fping 
+    iftop 
     iperf 
+    iproute2 
+    iptables 
+    iptraf-ng 
+    iputils 
+    ipvsadm 
+    liboping 
+    mtr 
+    net-snmp-tools 
+    netcat-openbsd 
+    ngrep 
     nmap 
     nmap-nping 
-    conntrack-tools 
-    socat 
-    busybox-extras 
-    tcptraceroute 
-    mtr 
-    fping 
-    liboping 
-    iptraf-ng 
-    dhcping 
     nmap-nping 
-    net-snmp-tools 
-    python2 
-    py2-virtualenv 
     py-crypto 
+    py2-virtualenv 
+    python2 
     scapy 
-    vim 
-    bird 
-    bash
-    calicoctl
+    socat 
+    strace 
+    tcpdump 
+    tcptraceroute 
+    util-linux 
+    vim
     
     
 
