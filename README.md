@@ -497,7 +497,7 @@ For example, if we wanted to check the L2 forwarding table for a overlay network
     }
 ]
 
-# Launcing netshoot in privileged mode
+# Launching netshoot in privileged mode
  🐳  → docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privileged=true nicolaka/netshoot
  
 # Listing all docker-created network namespaces
@@ -623,16 +623,9 @@ br0		8000.0215b8e7deb3	no		vxlan1
  # To get data into ctop, you'll need to bind docker.sock into the netshoot container.
 / # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock netshoot
 
-```
- ctop - 15:10:23 UTC   2 containers
+![ctop.png](img/ctop.png)
 
-   NAME                                   CID                                    CPU                                    MEM                                    NET RX/TX                              IO R/W                                 PIDS
-
- ◉  quirky_lichterman                      3b4fdde356fa                                              1%                                 5M / 1.95G              828B / 0B                              0B / 0B                                13
- ◉  condescending_blackwell                f00dcc0e50dd                                              -                                      -                   -                                      -                                      -
-```
 It will display running and existed containers with useful metrics to help troubleshoot resource issues; hit "q" to exit.
-
 
 
 ## Feedback + Contribution
