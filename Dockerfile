@@ -16,6 +16,7 @@ RUN set -ex \
     dhcping \
     drill \
     ethtool \
+    file\
     fping \
     iftop \
     iperf \
@@ -24,6 +25,7 @@ RUN set -ex \
     iptraf-ng \
     iputils \
     ipvsadm \
+    libc6-compat \
     liboping \
     mtr \
     net-snmp-tools \
