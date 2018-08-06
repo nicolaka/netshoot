@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 
 RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -46,8 +46,11 @@ RUN set -ex \
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
+# Installing ctop - top-like container monitor
+RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop
+
 # Installing calicoctl
-RUN wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
+RUN wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl -O /usr/local/bin/calicoctl && chmod +x /usr/local/bin/calicoctl 
 
 # Netgen
 ADD netgen.sh /usr/local/bin/netgen
