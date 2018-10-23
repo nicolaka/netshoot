@@ -27,7 +27,7 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
-**Network Problems:** Many network issues could result in application performance degradations. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
+**Network Problems:** Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
 
 * latency
 * routing 
@@ -202,7 +202,7 @@ TCP window size: 85.3 KByte (default)
 **tcpdump** is a powerful and common packet analyzer that runs under the command line. It allows the user to display TCP/IP and other packets being transmitted or received over an attached network interface. 
 
 ```
-# Continuing on the iperf example. Let's lauch netshoot with perf-test-a's container network namespace.
+# Continuing on the iperf example. Let's launch netshoot with perf-test-a's container network namespace.
 
 🐳  → docker run -it --net container:perf-test-a.1.0qlf1kaka0cq38gojf7wcatoa  nicolaka/netshoot 
 
@@ -429,7 +429,7 @@ More info on `iproute2` [here](http://lartc.org/howto/lartc.iproute2.tour.html)
 
 ## nsenter
 
-Prupose: `nsenter` is a powerful tool allowing you to enter into any namespaces. `nsenter` is available inside `netshoot` but requires `netshoot` to be run as a privileged container. Additionally, you may want to mount the `/var/run/docker/netns` directory to be able to enter any network namespace including bridge and overlay networks. 
+Purpose: `nsenter` is a powerful tool allowing you to enter into any namespaces. `nsenter` is available inside `netshoot` but requires `netshoot` to be run as a privileged container. Additionally, you may want to mount the `/var/run/docker/netns` directory to be able to enter any network namespace including bridge and overlay networks. 
 
 
 With `docker run --name container-B --net container:container-A `, docker uses `container-A`'s network namespace ( including interfaces and routes) when creating `container-B`. This approach is helpful for troubleshooting network issues at the container level. To troubleshoot network issues at the bridge or overlay network level, you need to enter the `namespace` of the network _itself_. `nsenter` allows you to do that. 
@@ -495,7 +495,7 @@ For example, if we wanted to check the L2 forwarding table for a overlay network
     }
 ]
 
-# Launcing netshoot in privileged mode
+# Launching netshoot in privileged mode
  🐳  → docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privileged=true nicolaka/netshoot
  
 # Listing all docker-created network namespaces
