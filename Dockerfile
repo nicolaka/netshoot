@@ -31,7 +31,6 @@ RUN set -ex \
     ngrep \
     nmap \
     nmap-nping \
-    nmap-nping \
     py-crypto \
     py2-virtualenv \
     python2 \
