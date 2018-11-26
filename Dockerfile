@@ -16,6 +16,7 @@ RUN set -ex \
     dhcping \
     drill \
     ethtool \
+    file\
     fping \
     iftop \
     iperf \
@@ -24,13 +25,13 @@ RUN set -ex \
     iptraf-ng \
     iputils \
     ipvsadm \
+    libc6-compat \
     liboping \
     mtr \
     net-snmp-tools \
     netcat-openbsd \
     ngrep \
     nmap \
-    nmap-nping \
     nmap-nping \
     py-crypto \
     py2-virtualenv \
@@ -45,6 +46,9 @@ RUN set -ex \
 
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
+
+# Installing ctop - top-like container monitor
+RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop
 
 # Installing calicoctl
 ARG CALICOCTL_VERSION=v3.3.1

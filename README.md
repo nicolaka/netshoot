@@ -27,6 +27,10 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
+**Kubernetes:** If you want to spin up a throw away container for debugging.
+
+`$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
+
 **Network Problems:** Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
 
 * latency
@@ -52,7 +56,8 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     curl 
     dhcping 
     drill 
-    ethtool 
+    ethtool
+    file 
     fping 
     iftop 
     iperf 
@@ -60,7 +65,8 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     iptables 
     iptraf-ng 
     iputils 
-    ipvsadm 
+    ipvsadm
+    libc6-compat 
     liboping 
     mtr 
     net-snmp-tools 
@@ -614,6 +620,16 @@ br0		8000.0215b8e7deb3	no		vxlan1
 							veth4
 							
 ```
+
+## CTOP
+ ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
+
+ # To get data into ctop, you'll need to bind docker.sock into the netshoot container.
+/ # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock netshoot
+
+![ctop.png](img/ctop.png)
+
+It will display running and existed containers with useful metrics to help troubleshoot resource issues; hit "q" to exit.
 
 
 ## Feedback + Contribution
