@@ -51,7 +51,8 @@ RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop
 
 # Installing calicoctl
-RUN wget https://github.com/projectcalico/calicoctl/releases/download/v3.1.1/calicoctl -O /usr/local/bin/calicoctl && chmod +x /usr/local/bin/calicoctl 
+ARG CALICOCTL_VERSION=v3.3.1
+RUN wget https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
 
 # Netgen
 ADD netgen.sh /usr/local/bin/netgen
