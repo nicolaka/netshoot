@@ -46,47 +46,49 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
 
 **Included Packages:** The following packages are included in `netshoot`. We'll go over some with some sample use-cases.
 
-    apache2-utils 
+    apache2-utils
     bash
-    bird 
-    bridge-utils 
-    busybox-extras 
+    bind-tools
+    bird
+    bridge-utils
+    busybox-extras
     calicoctl
-    conntrack-tools 
-    curl 
-    dhcping 
-    drill 
+    conntrack-tools
+    ctop
+    curl
+    dhcping
+    drill
     ethtool
-    file 
-    fping 
-    iftop 
-    iperf 
-    iproute2 
-    iptables 
-    iptraf-ng 
-    iputils 
+    file
+    fping
+    iftop
+    iperf
+    iproute2
+    iptables
+    iptraf-ng
+    iputils
     ipvsadm
-    libc6-compat 
-    liboping 
-    mtr 
-    net-snmp-tools 
-    netcat-openbsd 
-    ngrep 
-    nmap 
-    nmap-nping 
-    nmap-nping 
-    py-crypto 
-    py2-virtualenv 
-    python2 
-    scapy 
-    socat 
-    strace 
-    tcpdump 
-    tcptraceroute 
-    util-linux 
+    libc6-compat
+    liboping
+    mtr
+    net-snmp-tools
+    netcat-openbsd
+    netgen
+    nftables
+    ngrep
+    nmap
+    nmap-nping
+    openssl
+    py-crypto
+    py2-virtualenv
+    python2
+    scapy
+    socat
+    strace
+    tcpdump
+    tcptraceroute
+    util-linux
     vim
-    
-    
 
 ##**Docker EE 2.0 + Kubernetes Use Cases:** 
 Here's a list of use-cases that can help you understand when and how to use this container to solve networking issues in your Docker cluster. Please feel free to add your own use-case where you used `netshoot` to investigate, trouble-shoot, or just learn more about your environment!!!
