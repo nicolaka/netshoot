@@ -31,6 +31,10 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
 
+And if you want to spin up a container on the host's network namespace.
+
+`$ kubectl run tmp-shell --generator=run-pod/v1 --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot  -- /bin/bash`
+
 **Network Problems:** Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
 
 * latency
