@@ -29,7 +29,7 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 **Kubernetes:** If you want to spin up a throw away container for debugging.
 
-`$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
+`$ kubectl run --generator=run-pod/v1 tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
 
 And if you want to spin up a container on the host's network namespace.
 
