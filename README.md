@@ -631,8 +631,11 @@ br0		8000.0215b8e7deb3	no		vxlan1
  ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
 
  # To get data into ctop, you'll need to bind docker.sock into the netshoot container.
-/ # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock netshoot
+```
 
+/ # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop
+
+```
 ![ctop.png](img/ctop.png)
 
 It will display running and existed containers with useful metrics to help troubleshoot resource issues; hit "q" to exit.
