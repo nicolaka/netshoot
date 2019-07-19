@@ -68,6 +68,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     iftop
     iperf
     iproute2
+    ipset
     iptables
     iptraf-ng
     iputils

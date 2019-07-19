@@ -22,6 +22,7 @@ RUN set -ex \
     iftop \
     iperf \
     iproute2 \
+    ipset \
     iptables \
     iptraf-ng \
     iputils \
