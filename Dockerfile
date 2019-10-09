@@ -59,6 +59,10 @@ RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linu
 ARG CALICOCTL_VERSION=v3.3.1
 RUN wget https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
 
+# Add ipinfo script
+COPY ipinfo /usr/local/bin/ 
+RUN chmod 755 /usr/local/bin/ipinfo
+
 # Settings
 ADD motd /etc/motd
 ADD profile  /etc/profile

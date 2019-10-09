@@ -1,0 +1,11 @@
+#!/bin/bash
+
+#Get IP address info from https://ipinfo.io
+
+if [[ "$1" == "" ]]; then
+  echo "IP address missing."
+  echo "Usage: ipinfo 123.123.123.123"
+  exit 1
+fi
+
+curl https://ipinfo.io/$1
