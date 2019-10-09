@@ -29,6 +29,7 @@ RUN set -ex \
     ipvsadm \
     libc6-compat \
     liboping \
+    jq \
     mtr \
     net-snmp-tools \
     netcat-openbsd \
