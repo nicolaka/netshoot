@@ -27,7 +27,9 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
-**Kubernetes:** If you want to spin up a throw away container for debugging.
+**Kubernetes**
+
+If you want to spin up a throw away container for debugging.
 
 `$ kubectl run --generator=run-pod/v1 tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
 
@@ -35,7 +37,9 @@ And if you want to spin up a container on the host's network namespace.
 
 `$ kubectl run tmp-shell --generator=run-pod/v1 --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot  -- /bin/bash`
 
-**Network Problems:** Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
+**Network Problems** 
+
+Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
 
 * latency
 * routing 
@@ -95,7 +99,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     util-linux
     vim
 
-##**Docker EE 2.0 + Kubernetes Use Cases:** 
+## **Docker EE 2.0 + Kubernetes Use Cases:** 
 Here's a list of use-cases that can help you understand when and how to use this container to solve networking issues in your Docker cluster. Please feel free to add your own use-case where you used `netshoot` to investigate, trouble-shoot, or just learn more about your environment!!!
 
 
@@ -629,14 +633,15 @@ br0		8000.0215b8e7deb3	no		vxlan1
 ```
 
 ## CTOP
- ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
 
- # To get data into ctop, you'll need to bind docker.sock into the netshoot container.
+ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
+
+To get data into ctop, you'll need to bind docker.sock into the netshoot container.
+
 ```
-
 / # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop
-
 ```
+
 ![ctop.png](img/ctop.png)
 
 It will display running and existed containers with useful metrics to help troubleshoot resource issues; hit "q" to exit.
