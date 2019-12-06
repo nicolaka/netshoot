@@ -77,6 +77,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     iptraf-ng
     iputils
     ipvsadm
+    jq
     libc6-compat
     liboping
     mtr
