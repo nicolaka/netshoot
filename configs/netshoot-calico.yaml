@@ -1,4 +1,6 @@
-apiVersion: apps/v1beta2 # for versions before 1.9.0 use apps/v1beta2
+---
+# NOTE: use apps/v1beta1 before 1.9.x and apps/v1beta2 before v1.16.x
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: kube-system
