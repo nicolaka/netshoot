@@ -69,6 +69,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     ethtool
     file
     fping
+    httpie
     iftop
     iperf
     iproute2
