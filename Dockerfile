@@ -20,6 +20,7 @@ RUN set -ex \
     ethtool \
     file\
     fping \
+    httpie \
     iftop \
     iperf \
     iproute2 \
@@ -46,9 +47,9 @@ RUN set -ex \
     strace \
     tcpdump \
     tcptraceroute \
+    tshark \
     util-linux \
-    vim \
-    httpie 
+    vim 
      
     
 
@@ -61,6 +62,14 @@ RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linu
 # Installing calicoctl
 ARG CALICOCTL_VERSION=v3.13.3
 RUN wget https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
+
+# Installing termshark
+ENV TERMSHARK_VERSION 2.1.1
+RUN wget https://github.com/gcla/termshark/releases/download/v${TERMSHARK_VERSION}/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz -O /tmp/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz && \
+    tar -zxvf /tmp/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz && \
+    mv termshark_${TERMSHARK_VERSION}_linux_x64/termshark /usr/local/bin/termshark && \
+    chmod +x /usr/local/bin/termshark
+
 
 # Settings
 ADD motd /etc/motd

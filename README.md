@@ -98,6 +98,8 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     strace
     tcpdump
     tcptraceroute
+    termshark
+    tshark
     util-linux
     vim
 
