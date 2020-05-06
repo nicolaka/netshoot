@@ -28,6 +28,7 @@ RUN set -ex \
     iptraf-ng \
     iputils \
     ipvsadm \
+    jq \
     libc6-compat \
     liboping \
     mtr \
