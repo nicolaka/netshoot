@@ -22,7 +22,6 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 `$ docker run -it --net container:<container_name> nicolaka/netshoot`
 
 * **Host's Network Namespace:** If you think the networking issue is on the host itself, you can launch `netshoot` with that host's network namespace. This is how:
- 
 `$ docker run -it --net host nicolaka/netshoot`
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
@@ -650,17 +649,24 @@ To get data into ctop, you'll need to bind docker.sock into the netshoot contain
 
 It will display running and existed containers with useful metrics to help troubleshoot resource issues; hit "q" to exit.
 
+## Termshark
+
+Termshark is a terminal user-interface for tshark. It allows user to read pcap files or sniff live interfaces with Wireshark's display filters. 
+
+
+```
+# Launching netshoot with NET_ADMIN and CAP_NET_RAW capabilities. Capturing packets on eth0 with icmp 
+/ # docker run --rm --cap-add=NET_ADMIN --cap-add=CAP_NET_RAW -it nicolaka/netshoot termshark -i eth0 icmp
+```
+
+```
+# Launching netshoot with NET_ADMIN and CAP_NET_RAW capabilities Reading packets from ipv4frags.pcap
+
+/ # docker run --rm --cap-add=NET_ADMIN --cap-add=CAP_NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it nicolaka/netshoot termshark -r /tmp/ipv4frags.pcap
+```
+More info on `termshark` [here](https://github.com/gcla/termshark)
+
 
 ## Feedback + Contribution
 
 Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs.
-
-
-
-
-
-
-
- 
-
-
