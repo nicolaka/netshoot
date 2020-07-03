@@ -70,6 +70,22 @@ RUN wget https://github.com/gcla/termshark/releases/download/v${TERMSHARK_VERSIO
     mv termshark_${TERMSHARK_VERSION}_linux_x64/termshark /usr/local/bin/termshark && \
     chmod +x /usr/local/bin/termshark
 
+# Installing gRPCurl
+ENV GRPCURL_VERSION 1.6.0
+RUN wget https://github.com/fullstorydev/grpcurl/releases/download/v${GRPCURL_VERSION}/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz -O /tmp/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz && \
+    mkdir ./grpcurl_${GRPCURL_VERSION}_linux_x86_64 && \
+    tar -zxvf /tmp/grpcurl_${GRPCURL_VERSION}_linux_x86_64.tar.gz -C grpcurl_${GRPCURL_VERSION}_linux_x86_64/ && \
+    mv grpcurl_${GRPCURL_VERSION}_linux_x86_64/grpcurl /usr/local/bin/grpcurl && \
+    chmod +x /usr/local/bin/grpcurl
+
+# Installing ghz
+ENV GHZ_VERSION 0.55.0
+RUN wget https://github.com/bojand/ghz/releases/download/v${GHZ_VERSION}/ghz-linux-x86_64.tar.gz -O /tmp/ghz-linux-x86_64.tar.gz && \
+    mkdir ./ghz_${GHZ_VERSION} && \
+    tar -zxvf /tmp/ghz-linux-x86_64.tar.gz -C ghz_${GHZ_VERSION}/ && \
+    mv ghz_${GHZ_VERSION}/ghz /usr/local/bin/ghz && \
+    rm ghz_${GHZ_VERSION}/ghz-web && \
+    chmod +x /usr/local/bin/ghz
 
 # Settings
 ADD motd /etc/motd
