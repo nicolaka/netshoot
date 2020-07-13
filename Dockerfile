@@ -48,9 +48,9 @@ RUN set -ex \
     tcptraceroute \
     tshark \
     util-linux \
-    vim 
-     
-    
+    vim \
+    websocat
+
 
 # apparmor issue #14140
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
