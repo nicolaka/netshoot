@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.11
 
 RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -25,7 +25,7 @@ RUN set -ex \
     iperf \
     iproute2 \
     ipset \
-    iptables \
+    iptables \ 
     iptraf-ng \
     iputils \
     ipvsadm \
@@ -41,7 +41,6 @@ RUN set -ex \
     nmap-nping \
     openssl \
     py-crypto \
-    py2-virtualenv \
     scapy \
     socat \
     strace \
