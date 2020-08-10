@@ -101,6 +101,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     tshark
     util-linux
     vim
+    websocat
 
 ## **Docker EE 2.0 + Kubernetes Use Cases:** 
 Here's a list of use-cases that can help you understand when and how to use this container to solve networking issues in your Docker cluster. Please feel free to add your own use-case where you used `netshoot` to investigate, trouble-shoot, or just learn more about your environment!!!
