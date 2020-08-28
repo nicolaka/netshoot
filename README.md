@@ -30,11 +30,11 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 If you want to spin up a throw away container for debugging.
 
-`$ kubectl run --generator=run-pod/v1 tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
+`$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
 
 And if you want to spin up a container on the host's network namespace.
 
-`$ kubectl run tmp-shell --generator=run-pod/v1 --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot  -- /bin/bash`
+`$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot  -- /bin/bash`
 
 **Network Problems** 
 
@@ -103,76 +103,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     vim
     websocat
 
-## **Docker EE 2.0 + Kubernetes Use Cases:** 
-Here's a list of use-cases that can help you understand when and how to use this container to solve networking issues in your Docker cluster. Please feel free to add your own use-case where you used `netshoot` to investigate, trouble-shoot, or just learn more about your environment!!!
-
-
-## Managing Kubernetes Calico CNI with calicoctl
-
-In Docker Enterprise Edition, and in so many Kubernetes-based solutions, [Calico](https://www.projectcalico.org/) is used as the default CNI plugin of choice. This means that all the pod networking related resources ( IP assignment, routing, network policies, etc..) is handled by Calico. [calicoctl](https://github.com/projectcalico/calicoctl) is a cli tool to makes it easy to manage Calico network and security policy, as well as other Calico configurations. The calicoctl tool talks directly to `etcd`, so it's often not possible or recommended to expose etcd outside of the Kubernetes cluster. A recommended way to use calicoctl is to run it on a the master node inside the cluster. 
-
-Assuming you are running Docker EE 2.0 (although this should work on any Kuberenetes cluster with Calico installed), run the `netshoot` as a deployment using [this deployment](configs/netshoot-calico.yaml). This deployment will use the `kube-system` namespace.
-
-```
-# Note: This step assumes you loaded UCP client bundle and have kubectl working as expected.
-🐳  → kubectl apply -f netshoot-calico.yaml
-```
-
-This deployment will deploy a single pod on a master node and automatically load up etcd certs so you can easily start using calicoctl. Now it's time to exec into the pod:
-
-```
-🐳  → kubectl get pod --selector=app=netshoot -n kube-system
-NAME                                      READY     STATUS    RESTARTS   AGE
-netshoot-calico-deploy-57b8896459-rzqz4   1/1       Running   0          1h
-```
-
-Now exec into this pod and use the calicoctl directly without any further configurations! Full documentations on using the calicoctl tool is found [here](https://docs.projectcalico.org/v3.1/reference/calicoctl/commands/).
-
-```
-🐳  → kubectl exec -it -n kube-system netshoot-calico-deploy-57b8896459-rzqz4 -- /bin/bash -l
-                    dP            dP                           dP
-                    88            88                           88
-88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
-88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
-88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
-dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
-
-Welcome to Netshoot! (github.com/nicolaka/netshoot)
-root @ /
- [1] 🐳  → calicoctl get wep
-WORKLOAD                            NODE              NETWORKS             INTERFACE
-nginx-deployment-569477d6d8-98xv5   ip-10-56-14-210   192.168.134.207/32   calia756b40818a
-netshoot-deploy-6bffc797bf-cfgpp    ip-10-56-17-161   192.168.63.80/32     cali50d3753ec26
-nginx-deployment-569477d6d8-6klz6   ip-10-56-17-161   192.168.63.79/32     caliaef53a8ccae
-
-
-root @ /
- [2] 🐳  → calicoctl get ippool
-NAME                  CIDR
-default-ipv4-ippool   192.168.0.0/16
-
-
-root @ /
- [3] 🐳  → calicoctl get bgpconfig -o yaml
-apiVersion: projectcalico.org/v3
-items:
-- apiVersion: projectcalico.org/v3
-  kind: BGPConfiguration
-  metadata:
-    creationTimestamp: 2018-05-03T18:04:13Z
-    name: default
-    resourceVersion: "4519634"
-    uid: 631aa7d6-4efc-11e8-92d5-06982eb5f90e
-  spec:
-    asNumber: 63400
-    logSeverityScreen: Info
-    nodeToNodeMeshEnabled: false
-kind: BGPConfigurationList
-metadata:
-  resourceVersion: "6152496"
-```
-
-##**Docker + Swarm Use Cases:** 
+## **Sample Use-cases** 
 
 ## iperf 
 
@@ -670,4 +601,5 @@ More info on `termshark` [here](https://github.com/gcla/termshark)
 
 ## Feedback + Contribution
 
-Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs.
+Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, open a PR with the rationale and ensure that you update both the Dockerfile and the README with some examples on how to use it!
+
