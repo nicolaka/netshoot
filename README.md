@@ -17,12 +17,13 @@ Kubernetes also uses network namespaces. Kubelets creates a network namespace pe
 
 Cool thing about namespaces is that you can switch between them. You can enter a different container's network namespace, perform some troubleshooting on its network's stack with tools that aren't even installed on that container. Additionally, `netshoot` can be used to troubleshoot the host itself by using the host's network namespace. This allows you to perform any troubleshooting without installing any new packages directly on the host or your application's package. 
 
-* **Container's Network Namespace:** If you're having networking issues with your application's container, you can launch `netshoot` with that container's network namespace like this :
+* **Container's Network Namespace:** If you're having networking issues with your application's container, you can launch `netshoot` with that container's network namespace like this:
 
-`$ docker run -it --net container:<container_name> nicolaka/netshoot`
+    `$ docker run -it --net container:<container_name> nicolaka/netshoot`
 
-* **Host's Network Namespace:** If you think the networking issue is on the host itself, you can launch `netshoot` with that host's network namespace. This is how:
-`$ docker run -it --net host nicolaka/netshoot`
+* **Host's Network Namespace:** If you think the networking issue is on the host itself, you can launch `netshoot` with that host's network namespace:
+
+    `$ docker run -it --net host nicolaka/netshoot`
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
@@ -107,7 +108,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
 
 ## iperf 
 
-Purpose : test networking performance between two containers/hosts. 
+Purpose: test networking performance between two containers/hosts. 
 
 Create Overlay network:
 
@@ -186,8 +187,6 @@ tcpdump: listening on eth0, link-type EN10MB (Ethernet), capture size 262144 byt
 
 More info on `tcpdump` can be found [here](http://www.tcpdump.org/tcpdump_man.html).
 
-
-
 ## netstat
 
 Purpose: `netstat` is a useful tool for checking your network configuration and activity. 
@@ -225,7 +224,6 @@ There are several states that ports will be discovered as:
 - `closed`: the pathway to the port is open but there is no application listening on this port.
 - `filtered`: the pathway to the port is closed, blocked by a firewall, routing rules, or host-based rules.
 
-
 ## iftop
 
 Purpose: iftop does for network usage what top does for CPU usage. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts.
@@ -243,13 +241,11 @@ ce4ff40a5456        nicolaka/netshoot:latest   "iperf -s -p 9999"       5 minute
 
 ![iftop.png](img/iftop.png)
 
-
 ## drill
 
 Purpose: drill is a tool	to designed to get all sorts of information out of the DNS.
 
 Continuing the `iperf` example, we'll use `drill` to understand how services' DNS is resolved in Docker. 
-
 
 ```
 🐳  → docker run -it --net container:perf-test-a.1.bil2mo8inj3r9nyrss1g15qav nicolaka/netshoot drill -V 5 perf-test-b
@@ -287,7 +283,7 @@ perf-test-b.	600	IN	A	10.0.3.4 <<<<<<<<<<<<<<<<<<<<<<<<<< Service VIP
 
 ## netcat
 
-Purpose: a simple Unix utility that reads and writes data across network connections, using the TCP or UDP protocol. It's useful for testing and troubleshooting TCP/UDP connections. If there's a firewall rule blocking certain ports, `netcat` can be used to detect
+Purpose: a simple Unix utility that reads and writes data across network connections, using the TCP or UDP protocol. It's useful for testing and troubleshooting TCP/UDP connections. `netcat` can be used to detect if there's a firewall rule blocking certain ports.
 
 ```
 🐳  →  docker network create -d overlay my-ovl
@@ -304,8 +300,7 @@ Connection to service-a 8080 port [tcp/http-alt] succeeded!
 
 ```
 ##  netgen
-`netgen` is a simple [script](netgen.sh) that will generate a packet of data between containers periodically using `netcat`. It's purpose is to use the generated traffic to demonstrate different features of the networking stack.
-
+Purpose: `netgen` is a simple [script](netgen.sh) that will generate a packet of data between containers periodically using `netcat`. The generated traffic can be used to demonstrate different features of the networking stack.
 
 `netgen <host> <ip>` will create a `netcat` server and client listening and sending to the same port.
 
@@ -350,7 +345,6 @@ srvc.2.vu47gf0sdmje@moby    | Listener started on port 5000
 ...
 ```
 
-
 ##  iproute2
 
 purpose: a collection of utilities for controlling TCP / IP networking and traffic control in Linux.
@@ -382,7 +376,6 @@ More info on `iproute2` [here](http://lartc.org/howto/lartc.iproute2.tour.html)
 ## nsenter
 
 Purpose: `nsenter` is a powerful tool allowing you to enter into any namespaces. `nsenter` is available inside `netshoot` but requires `netshoot` to be run as a privileged container. Additionally, you may want to mount the `/var/run/docker/netns` directory to be able to enter any network namespace including bridge and overlay networks. 
-
 
 With `docker run --name container-B --net container:container-A `, docker uses `container-A`'s network namespace ( including interfaces and routes) when creating `container-B`. This approach is helpful for troubleshooting network issues at the container level. To troubleshoot network issues at the bridge or overlay network level, you need to enter the `namespace` of the network _itself_. `nsenter` allows you to do that. 
 
@@ -452,11 +445,10 @@ For example, if we wanted to check the L2 forwarding table for a overlay network
  
 # Listing all docker-created network namespaces
  
- / # cd /var/run/docker/netns/
+/ # cd /var/run/docker/netns/
 /var/run/docker/netns # ls
 0b1b36d33313  1-9tp0f348do  14d1428c3962  645eb414b538  816b96054426  916dbaa7ea76  db9fd2d68a9b  e79049ce9994  f857b5c01ced
 1-9r17dodsxt  1159c401b8d8  1a508036acc8  7ca29d89293c  83b743f2f087  aeed676a57a5  default       f22ffa5115a0
-
 
 # The overlay network that we created had an id of 9tp0f348donsdj75pktssd97b. All overlay networks are named <number>-<id>. We can see it in the list as `1-9tp0f348do`. To enter it:
 
@@ -564,7 +556,6 @@ br0		8000.0215b8e7deb3	no		vxlan1
 							veth2
 							veth3
 							veth4
-							
 ```
 
 ## CTOP
@@ -573,9 +564,7 @@ ctop is a free open source, simple and cross-platform top-like command-line tool
 
 To get data into ctop, you'll need to bind docker.sock into the netshoot container.
 
-```
-/ # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop
-```
+`/ # docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop`
 
 ![ctop.png](img/ctop.png)
 
@@ -584,7 +573,6 @@ It will display running and existed containers with useful metrics to help troub
 ## Termshark
 
 Termshark is a terminal user-interface for tshark. It allows user to read pcap files or sniff live interfaces with Wireshark's display filters. 
-
 
 ```
 # Launching netshoot with NET_ADMIN and CAP_NET_RAW capabilities. Capturing packets on eth0 with icmp 
@@ -598,8 +586,6 @@ Termshark is a terminal user-interface for tshark. It allows user to read pcap f
 ```
 More info on `termshark` [here](https://github.com/gcla/termshark)
 
-
-## Feedback + Contribution
+## Feedback & Contribution
 
 Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, open a PR with the rationale and ensure that you update both the Dockerfile and the README with some examples on how to use it!
-
