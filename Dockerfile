@@ -1,3 +1,12 @@
+FROM debian:stable-slim as fetcher
+COPY build/fetch_binaries.sh /tmp/fetch_binaries.sh
+
+RUN apt-get update && apt-get install -y \
+  curl \
+  wget
+
+RUN /tmp/fetch_binaries.sh
+
 FROM alpine:3.11
 
 RUN set -ex \
@@ -56,19 +65,13 @@ RUN set -ex \
 RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 # Installing ctop - top-like container monitor
-RUN wget https://github.com/bcicen/ctop/releases/download/v0.7.1/ctop-0.7.1-linux-amd64 -O /usr/local/bin/ctop && chmod +x /usr/local/bin/ctop
+COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
 
 # Installing calicoctl
-ARG CALICOCTL_VERSION=v3.13.3
-RUN wget https://github.com/projectcalico/calicoctl/releases/download/${CALICOCTL_VERSION}/calicoctl && chmod +x calicoctl && mv calicoctl /usr/local/bin
+COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 
 # Installing termshark
-ENV TERMSHARK_VERSION 2.1.1
-RUN wget https://github.com/gcla/termshark/releases/download/v${TERMSHARK_VERSION}/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz -O /tmp/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz && \
-    tar -zxvf /tmp/termshark_${TERMSHARK_VERSION}_linux_x64.tar.gz && \
-    mv termshark_${TERMSHARK_VERSION}_linux_x64/termshark /usr/local/bin/termshark && \
-    chmod +x /usr/local/bin/termshark
-
+COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
 # Settings
 ADD motd /etc/motd
