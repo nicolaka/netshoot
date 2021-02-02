@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN /tmp/fetch_binaries.sh
 
-FROM alpine:3.11
+FROM alpine:3.13
 
 RUN set -ex \
     && echo "http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -49,7 +49,6 @@ RUN set -ex \
     nmap \
     nmap-nping \
     openssl \
-    py-crypto \
     scapy \
     socat \
     strace \
@@ -59,10 +58,6 @@ RUN set -ex \
     util-linux \
     vim \
     websocat
-
-
-# apparmor issue #14140
-RUN mv /usr/sbin/tcpdump /usr/bin/tcpdump
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
