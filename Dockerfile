@@ -57,7 +57,8 @@ RUN set -ex \
     tshark \
     util-linux \
     vim \
-    websocat
+    websocat \
+    speedtest-cli
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
