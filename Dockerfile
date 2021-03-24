@@ -56,7 +56,9 @@ RUN set -ex \
     tcptraceroute \
     tshark \
     util-linux \
-    vim \
+    vim \ 
+    git \
+    zsh \
     websocat
 
 # Installing ctop - top-like container monitor
@@ -68,8 +70,17 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 # Installing termshark
 COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
-# Settings
-ADD motd /etc/motd
-ADD profile  /etc/profile
+# Setting User and Home
+USER root
+WORKDIR /root
+ENV HOSTNAME netshoot
 
-CMD ["/bin/bash","-l"]
+# ZSH Themes
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+COPY zshrc .zshrc
+COPY motd motd
+
+# Running ZSH
+CMD ["zsh"]
