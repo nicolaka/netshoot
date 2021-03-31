@@ -25,9 +25,19 @@ jobs:
         name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
       -
+        name: Run Build base
+        run: |
+          docker build -f Dockerfile.base -t exfly/netshoot:base .
+      -
         name: Run Buildx
         run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=false" \
-            --file ./Dockerfile .
+          docker build -t exfly/netshoot:dev .
+      - name: save docker images
+        run: |
+          docker save --output netshoot.tar exfly/netshoot:dev
+      - name: Archive docker images artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: prod-shoot-image
+          path: |
+            netshoot.tar
