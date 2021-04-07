@@ -5,6 +5,8 @@ RUN apt-get update && apt-get install -y \
   curl \
   wget
 
+RUN ["chmod", "+x", "/tmp/fetch_binaries.sh"]
+
 RUN /tmp/fetch_binaries.sh
 
 FROM alpine:3.13
