@@ -10,6 +10,8 @@ export ZSH=$HOME/.oh-my-zsh
 #export TERM="xterm-256color"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
+ZSH_DISABLE_COMPFIX="true"
+
 # Set list of themes to load
 # Setting this variable when ZSH_THEME=random
 # cause zsh load theme from this variable instead of
