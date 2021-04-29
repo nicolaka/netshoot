@@ -29,8 +29,10 @@ RUN set -ex \
     ethtool \
     file\
     fping \
+    geoip-bin \
     httpie \
     iftop \
+    ipcalc \
     iperf \
     iproute2 \
     ipset \
