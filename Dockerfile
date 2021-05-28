@@ -39,7 +39,7 @@ RUN set -ex \
     iputils \
     ipvsadm \
     jq \
-    knot-dnsutils \
+    knot-utils \
     libc6-compat \
     liboping \
     mtr \
