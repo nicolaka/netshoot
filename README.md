@@ -576,13 +576,13 @@ Termshark is a terminal user-interface for tshark. It allows user to read pcap f
 
 ```
 # Launching netshoot with NET_ADMIN and CAP_NET_RAW capabilities. Capturing packets on eth0 with icmp 
-/ # docker run --rm --cap-add=NET_ADMIN --cap-add=CAP_NET_RAW -it nicolaka/netshoot termshark -i eth0 icmp
+/ # docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -it nicolaka/netshoot termshark -i eth0 icmp
 ```
 
 ```
 # Launching netshoot with NET_ADMIN and CAP_NET_RAW capabilities Reading packets from ipv4frags.pcap
 
-/ # docker run --rm --cap-add=NET_ADMIN --cap-add=CAP_NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it nicolaka/netshoot termshark -r /tmp/ipv4frags.pcap
+/ # docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it nicolaka/netshoot termshark -r /tmp/ipv4frags.pcap
 ```
 More info on `termshark` [here](https://github.com/gcla/termshark)
 
