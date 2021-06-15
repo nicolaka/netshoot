@@ -86,5 +86,8 @@ RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTO
 COPY zshrc .zshrc
 COPY motd motd
 
+# Fix permissions for OpenShift
+RUN chmod -R g=u /root
+
 # Running ZSH
 CMD ["zsh"]
