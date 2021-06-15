@@ -29,7 +29,6 @@ RUN set -ex \
     ethtool \
     file\
     fping \
-    httpie \
     iftop \
     iperf \
     iproute2 \
@@ -49,6 +48,8 @@ RUN set -ex \
     nmap \
     nmap-nping \
     openssl \
+    py3-pip \
+    py3-setuptools \
     scapy \
     socat \
     strace \
@@ -60,6 +61,9 @@ RUN set -ex \
     git \
     zsh \
     websocat
+
+# Installing httpie ( https://httpie.io/docs#installation)
+RUN pip3 install --upgrade httpie
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
