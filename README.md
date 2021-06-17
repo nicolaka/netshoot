@@ -79,6 +79,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     iputils
     ipvsadm
     jq
+    kdig
     libc6-compat
     liboping
     mtr
