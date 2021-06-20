@@ -60,6 +60,7 @@ RUN set -ex \
     vim \ 
     git \
     zsh \
+    speedtest-cli \ 
     websocat
 
 # Installing httpie ( https://httpie.io/docs#installation)
