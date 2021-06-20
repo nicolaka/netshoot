@@ -29,7 +29,6 @@ RUN set -ex \
     ethtool \
     file\
     fping \
-    httpie \
     iftop \
     iperf \
     iproute2 \
@@ -49,6 +48,8 @@ RUN set -ex \
     nmap \
     nmap-nping \
     openssl \
+    py3-pip \
+    py3-setuptools \
     scapy \
     socat \
     strace \
@@ -56,9 +57,14 @@ RUN set -ex \
     tcptraceroute \
     tshark \
     util-linux \
-    vim \
-    websocat \
-    speedtest-cli
+    vim \ 
+    git \
+    zsh \
+    speedtest-cli \ 
+    websocat
+
+# Installing httpie ( https://httpie.io/docs#installation)
+RUN pip3 install --upgrade httpie
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
@@ -69,8 +75,20 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 # Installing termshark
 COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
-# Settings
-ADD motd /etc/motd
-ADD profile  /etc/profile
+# Setting User and Home
+USER root
+WORKDIR /root
+ENV HOSTNAME netshoot
 
-CMD ["/bin/bash","-l"]
+# ZSH Themes
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+COPY zshrc .zshrc
+COPY motd motd
+
+# Fix permissions for OpenShift
+RUN chmod -R g=u /root
+
+# Running ZSH
+CMD ["zsh"]
