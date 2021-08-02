@@ -2,9 +2,9 @@ name: buildx
 
 on:
   pull_request:
-    branches: test
+    branches: master
   push:
-    branches: test
+    branches: master
     tags:
 
 jobs:
@@ -39,7 +39,7 @@ jobs:
             --output "type=image,push=true" \
             --file ./Dockerfile \
             --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
-            --tag $GITHUB_REPOSITORY:test . 
+            --tag $GITHUB_REPOSITORY:latest . 
 
 
             
