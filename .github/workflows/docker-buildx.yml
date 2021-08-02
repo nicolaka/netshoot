@@ -2,9 +2,9 @@ name: buildx
 
 on:
   pull_request:
-    branches: test
+    branches: master
   push:
-    branches: test
+    branches: master
     tags:
 
 jobs:
@@ -38,7 +38,8 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --file ./Dockerfile \
-            --tag nicolak/netshoot:test . 
+            --tag ${{GITHUB_REPOSITORY}}:${{GITHUB_SHA}} \
+            --tag ${{GITHUB_REPOSITORY}}:latest . 
 
 
             
