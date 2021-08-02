@@ -38,8 +38,8 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --file ./Dockerfile \
-            --tag ${{GITHUB_REPOSITORY}}:${{GITHUB_SHA}} \
-            --tag ${{GITHUB_REPOSITORY}}:test . 
+            --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
+            --tag $GITHUB_REPOSITORY:test . 
 
 
             
