@@ -52,6 +52,7 @@ RUN set -ex \
     py3-setuptools \
     scapy \
     socat \
+    speedtest-cli \
     strace \
     tcpdump \
     tcptraceroute \
