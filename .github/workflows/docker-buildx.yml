@@ -2,9 +2,9 @@ name: buildx
 
 on:
   pull_request:
-    branches: master
+    branches: test
   push:
-    branches: master
+    branches: test
     tags:
 
 jobs:
@@ -24,10 +24,20 @@ jobs:
       -
         name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
+      - 
+        name: docker login
+         env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+         run: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
       -
         name: Run Buildx
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=false" \
+            --output "type=image,push=true" \
             --file ./Dockerfile .
+
+
+            
