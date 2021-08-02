@@ -26,10 +26,10 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
       - 
         name: docker login
-         env:
+        env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-         run: |
+        run: |
             docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
       -
         name: Run Buildx
@@ -37,7 +37,8 @@ jobs:
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
-            --file ./Dockerfile .
+            --file ./Dockerfile \
+            --tag nicolak/netshoot:test . 
 
 
             
