@@ -103,6 +103,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     util-linux
     vim
     websocat
+    wrk
 
 ## **Sample Use-cases** 
 
