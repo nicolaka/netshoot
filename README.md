@@ -586,6 +586,22 @@ Termshark is a terminal user-interface for tshark. It allows user to read pcap f
 ```
 More info on `termshark` [here](https://github.com/gcla/termshark)
 
+## Swaks
+
+Swaks (Swiss Army Knife for SMTP) is a featureful, flexible, scriptable, transaction-oriented SMTP test tool. It is free to use and licensed under the GNU GPLv2.
+
+You can use it to test and troubleshoot email servers with a crystal-clear syntax:
+
+```bash
+swaks --to user@example.com \
+  --from fred@example.com --h-From: '"Fred Example" <fred@example.com>' \
+  --auth CRAM-MD5 --auth-user me@example.com \
+  --header-X-Test "test email" \
+  --data "Example body"
+```
+
+More info, examples and lots of documentation on `Swaks` [here](http://www.jetmore.org/john/code/swaks/)
+
 ## Feedback & Contribution
 
 Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, open a PR with the rationale and ensure that you update both the Dockerfile and the README with some examples on how to use it!
