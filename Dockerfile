@@ -31,9 +31,10 @@ RUN set -ex \
     fping \
     iftop \
     iperf \
+    iperf3 \
     iproute2 \
     ipset \
-    iptables \ 
+    iptables \
     iptraf-ng \
     iputils \
     ipvsadm \
@@ -58,7 +59,7 @@ RUN set -ex \
     tcptraceroute \
     tshark \
     util-linux \
-    vim \ 
+    vim \
     git \
     zsh \
     websocat
