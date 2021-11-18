@@ -61,7 +61,8 @@ RUN set -ex \
     vim \ 
     git \
     zsh \
-    websocat
+    websocat \
+    swaks
 
 # Installing httpie ( https://httpie.io/docs#installation)
 RUN pip3 install --upgrade httpie
