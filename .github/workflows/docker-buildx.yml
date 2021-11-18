@@ -1,11 +1,9 @@
-name: buildx
+name: release-buildx
 
 on:
-  pull_request:
-    branches: master
   push:
-    branches: master
     tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
 jobs:
   buildx:
@@ -14,6 +12,8 @@ jobs:
       -
         name: Checkout
         uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       -
         name: Set up Docker Buildx
         id: buildx
@@ -24,6 +24,8 @@ jobs:
       -
         name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
+      - name: Set Release Tag Env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - 
         name: docker login
         env:
@@ -39,6 +41,7 @@ jobs:
             --output "type=image,push=true" \
             --file ./Dockerfile \
             --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
+            --tag $GITHUB_REPOSITORY:$RELEASE_VERSION \
             --tag $GITHUB_REPOSITORY:latest . 
 
 
