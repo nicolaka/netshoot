@@ -19,6 +19,7 @@ RUN set -ex \
     apache2-utils \
     bash \
     bind-tools \
+    kafkacat \
     bird \
     bridge-utils \
     busybox-extras \
