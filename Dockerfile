@@ -48,6 +48,7 @@ RUN set -ex \
     ngrep \
     nmap \
     nmap-nping \
+    nmap-scripts \
     openssl \
     py3-pip \
     py3-setuptools \
