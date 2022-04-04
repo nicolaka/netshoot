@@ -20,7 +20,7 @@ esac
 
 get_ctop() {
   VERSION=$(get_latest_release bcicen/ctop | sed -e 's/^v//')
-  LINK="https://github.com/bcicen/ctop/releases/download/${VERSION}/ctop-${VERSION}-linux-${ARCH}"
+  LINK="https://github.com/bcicen/ctop/releases/tag/v${VERSION}/ctop-${VERSION}-linux-${ARCH}"
   wget "$LINK" -O /tmp/ctop && chmod +x /tmp/ctop
 }
 
