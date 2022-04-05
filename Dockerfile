@@ -3,7 +3,11 @@ COPY build/fetch_binaries.sh /tmp/fetch_binaries.sh
 
 RUN apt-get update && apt-get install -y \
   curl \
-  wget
+  wget \
+  build-essential \
+  libssl-dev \
+  zip \
+  git
 
 RUN /tmp/fetch_binaries.sh
 
@@ -16,6 +20,7 @@ RUN set -ex \
     && apk update \
     && apk upgrade \
     && apk add --no-cache \
+    gcompat \
     apache2-utils \
     bash \
     bind-tools \
@@ -77,6 +82,9 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 
 # Installing termshark
 COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
+
+# Installing wrk
+COPY --from=fetcher /tmp/wrk /usr/local/bin/wrk
 
 # Setting User and Home
 USER root
