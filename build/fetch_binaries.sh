@@ -51,6 +51,15 @@ get_termshark() {
   esac
 }
 
+get_wrk() {
+  git clone https://github.com/wg/wrk.git wrk
+  cd wrk
+  make
+  mv wrk /tmp/wrk
+  chmod +x /tmp/wrk
+}
+
 get_ctop
 get_calicoctl
 get_termshark
+get_wrk
