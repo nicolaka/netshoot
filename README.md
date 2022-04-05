@@ -17,6 +17,8 @@ Kubernetes also uses network namespaces. Kubelets creates a network namespace pe
 
 Cool thing about namespaces is that you can switch between them. You can enter a different container's network namespace, perform some troubleshooting on its network's stack with tools that aren't even installed on that container. Additionally, `netshoot` can be used to troubleshoot the host itself by using the host's network namespace. This allows you to perform any troubleshooting without installing any new packages directly on the host or your application's package. 
 
+## Netshoot with Docker 
+
 * **Container's Network Namespace:** If you're having networking issues with your application's container, you can launch `netshoot` with that container's network namespace like this:
 
     `$ docker run -it --net container:<container_name> nicolaka/netshoot`
@@ -27,15 +29,88 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
-**Kubernetes**
+## Netshoot with Docker Compose
 
-If you want to spin up a throw away container for debugging.
+You can easily deploy `netshoot` using Docker Compose using something like this:
 
-`$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot -- /bin/bash`
+```
+version: "3.6"
+services:
+  tcpdump:
+    image: nicolaka/netshoot
+    depends_on:
+      - nginx
+    command: tcpdump -i eth0 -w /data/nginx.pcap
+    network_mode: service:nginx
+    volumes:
+      - $PWD/data:/data
 
-And if you want to spin up a container on the host's network namespace.
+  nginx:
+    image: nginx:alpine
+    ports:
+      - 80:80
+```
 
-`$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot  -- /bin/bash`
+## Netshoot with Kubernetes
+
+* If you want to spin up a throw away container for debugging.
+
+    `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot`
+
+* if you want to spin up a container on the host's network namespace.
+
+    `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot`
+
+* if you want to use netshoot as a sidecar container to troubleshoot your application container
+
+ ```
+    $ cat netshoot-sidecar.yaml
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+        name: nginx-netshoot
+        labels:
+            app: nginx-netshoot
+    spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: nginx-netshoot
+    template:
+        metadata:
+        labels:
+            app: nginx-netshoot
+        spec:
+            containers:
+            - name: nginx
+            image: nginx:1.14.2
+            ports:
+                - containerPort: 80
+            - name: netshoot
+            image: nicolaka/netshoot
+            command: ["/bin/bash"]
+            args: ["-c", "while true; do ping localhost; sleep 60;done"]
+
+    $ kubectl apply -f netshoot-sidecar.yaml
+      deployment.apps/nginx-netshoot created
+
+    $ kubectl get pod
+NAME                              READY   STATUS    RESTARTS   AGE
+nginx-netshoot-7f9c6957f8-kr8q6   2/2     Running   0          4m27s
+
+    $ kubectl exec -it nginx-netshoot-7f9c6957f8-kr8q6 -c netshoot -- /bin/zsh
+                        dP            dP                           dP
+                        88            88                           88
+    88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
+    88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
+    88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
+    dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
+
+    Welcome to Netshoot! (github.com/nicolaka/netshoot)
+
+
+    nginx-netshoot-7f9c6957f8-kr8q6 $ 
+ ```
 
 **Network Problems** 
 
@@ -602,6 +677,15 @@ swaks --to user@example.com \
 
 More info, examples and lots of documentation on `Swaks` [here](http://www.jetmore.org/john/code/swaks/)
 
-## Feedback & Contribution
+## Contribution
 
-Feel free to provide feedback and contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, open a PR with the rationale and ensure that you update both the Dockerfile and the README with some examples on how to use it!
+Feel free to provide to contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, please follow these steps:
+
+* In the PR, please include some rationale as to why this tool is useful to be included in netshoot. 
+     > Note: If the functionality of the tool is already addressed by an existing tool, I might not accept the PR
+* Change the Dockerfile to include the new package/tool
+* If you're building the tool from source, make sure you leverage the multi-stage build process and update the `build/fetch_binaries.sh` script 
+* Update the README's list of included packages AND include a section on how to use the tool
+* If the tool you're adding supports multi-platform, please make sure you highlight that.
+
+
