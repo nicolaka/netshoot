@@ -29,12 +29,18 @@ jobs:
       - name: Set Release Tag Env
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - 
-        name: docker login
+        name: docker hub login
         env:
           DOCKER_USER: ${{secrets.DOCKER_USER}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: |
             docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+      - 
+        name: docker ghcr login
+          GITHUB_USER: ${{secrets.GHCR_USER}}
+          GITHUB_TOKEN: ${{secrets.GHCR_TOKEN}}
+        run: |
+            docker login ghcr.io -u $GHCR_USER -p $GHCR_TOKEN
       -
         name: Run Buildx
         run: |
@@ -44,7 +50,10 @@ jobs:
             --file ./Dockerfile \
             --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
             --tag $GITHUB_REPOSITORY:$RELEASE_VERSION \
-            --tag $GITHUB_REPOSITORY:latest . 
+            --tag $GITHUB_REPOSITORY:latest \
+            --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA \
+            --tag ghcr.io/$GITHUB_REPOSITORY:$RELEASE_VERSION \
+            --tag ghcr.io/$GITHUB_REPOSITORY:latest . 
 
 
             
