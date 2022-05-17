@@ -37,6 +37,7 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
       - 
         name: docker ghcr login
+        env:
           GHCR_USER: ${{secrets.GHCR_USER}}
           GHCR_TOKEN: ${{secrets.GHCR_TOKEN}}
         run: |
