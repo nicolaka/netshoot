@@ -41,6 +41,7 @@ RUN set -ex \
     jq \
     libc6-compat \
     liboping \
+    ltrace \
     mtr \
     net-snmp-tools \
     netcat-openbsd \
