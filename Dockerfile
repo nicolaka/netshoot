@@ -65,7 +65,9 @@ RUN set -ex \
     git \
     zsh \
     websocat \
-    swaks
+    swaks \
+    perl-crypt-ssleay \
+    perl-net-ssleay
 
 # Installing httpie ( https://httpie.io/docs#installation)
 RUN pip3 install --upgrade httpie

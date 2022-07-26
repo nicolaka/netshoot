@@ -171,6 +171,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     scapy
     socat
     strace
+    swaks
     tcpdump
     tcptraceroute
     termshark
@@ -672,6 +673,7 @@ swaks --to user@example.com \
   --from fred@example.com --h-From: '"Fred Example" <fred@example.com>' \
   --auth CRAM-MD5 --auth-user me@example.com \
   --header-X-Test "test email" \
+  --tls \
   --data "Example body"
 ```
 
