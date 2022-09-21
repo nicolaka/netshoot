@@ -374,51 +374,6 @@ bnj517hh4ylpf7ewawsp9unrc
 Connection to service-a 8080 port [tcp/http-alt] succeeded!
 
 ```
-##  netgen
-Purpose: `netgen` is a simple [script](netgen.sh) that will generate a packet of data between containers periodically using `netcat`. The generated traffic can be used to demonstrate different features of the networking stack.
-
-`netgen <host> <ip>` will create a `netcat` server and client listening and sending to the same port.
-
-Using `netgen` with `docker run`:
-
-```
-🐳  →  docker network create -d bridge br
-01b167971453700cf0a40d7e1a0dc2b0021e024bbb119541cc8c1858343c9cfc
-
-🐳  →  docker run -d --rm --net br --name c1 nicolaka/netshoot netgen c2 5000
-8c51eb2100c35d14244dcecb80839c780999159985415a684258c7154ec6bd42
-
-🐳  →  docker run -it --rm --net br --name c2 nicolaka/netshoot netgen c1 5000
-Listener started on port 5000
-Sending traffic to c1 on port 5000 every 10 seconds
-Sent 1 messages to c1:5000
-Sent 2 messages to c1:5000
-
-🐳  →  sudo tcpdump -vvvn -i eth0 port 5000
-...
-```
-
-Using `netgen` with `docker services`:
-
-```
-🐳  →  docker network create -d overlay ov
-01b167971453700cf0a40d7e1a0dc2b0021e024bbb119541cc8c1858343c9cfc
-
-🐳  →  docker service create --network ov --replicas 3 --name srvc netshoot netgen srvc 5000
-y93t8mb9wgzsc27f7l2rdu5io
-
-🐳  →  docker service logs srvc
-srvc.1.vwklts5ybq5w@moby    | Listener started on port 5000
-srvc.1.vwklts5ybq5w@moby    | Sending traffic to srvc on port 5000 every 10 seconds
-srvc.1.vwklts5ybq5w@moby    | Sent 1 messages to srvc:5000
-srvc.3.dv4er00inlxo@moby    | Listener started on port 5000
-srvc.2.vu47gf0sdmje@moby    | Listener started on port 5000
-...
-
-
-🐳  →  sudo tcpdump -vvvn -i eth0 port 5000
-...
-```
 
 ##  iproute2
 
