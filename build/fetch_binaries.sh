@@ -32,9 +32,6 @@ get_calicoctl() {
 
 get_termshark() {
   case "$ARCH" in
-    "arm"*)
-      echo "echo termshark does not yet support arm" > /tmp/termshark && chmod +x /tmp/termshark
-      ;;
     *)
       VERSION=$(get_latest_release gcla/termshark | sed -e 's/^v//')
       if [ "$ARCH" == "amd64" ]; then
