@@ -53,7 +53,7 @@ services:
 
 ## Netshoot with Kubernetes
 
-* if you want to [debug using ephemeral containers](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container-example)
+* if you want to debug using an [ephemeral container](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container-example) in an existing pod:
 
     `$ kubectl debug mypod -it --image=nicolaka/netshoot`
 
