@@ -57,6 +57,10 @@ services:
 
     `$ kubectl debug mypod -it --image=nicolaka/netshoot`
 
+* if you want to spin up a throw away pod for debugging.
+
+    `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot`
+
 * if you want to spin up a container on the host's network namespace.
 
     `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot`
