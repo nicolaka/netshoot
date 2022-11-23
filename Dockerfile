@@ -81,6 +81,9 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 # Installing termshark
 COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
+# Installing grpcurl
+COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
+
 # Setting User and Home
 USER root
 WORKDIR /root
