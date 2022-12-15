@@ -53,7 +53,11 @@ services:
 
 ## Netshoot with Kubernetes
 
-* If you want to spin up a throw away container for debugging.
+* if you want to debug using an [ephemeral container](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container-example) in an existing pod:
+
+    `$ kubectl debug mypod -it --image=nicolaka/netshoot`
+
+* if you want to spin up a throw away pod for debugging.
 
     `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot`
 
