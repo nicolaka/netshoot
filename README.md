@@ -160,6 +160,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     jq
     libc6-compat
     liboping
+    ltrace
     mtr
     net-snmp-tools
     netcat-openbsd
