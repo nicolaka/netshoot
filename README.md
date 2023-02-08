@@ -116,6 +116,25 @@ nginx-netshoot-7f9c6957f8-kr8q6   2/2     Running   0          4m27s
     nginx-netshoot-7f9c6957f8-kr8q6 $ 
  ```
 
+## The netshoot kubectl plugin
+
+To easily troubleshoot networking issues in your k8s environment, you can leverage the [Netshoot Kubeclt Plugin](https://github.com/nilic/kubectl-netshoot) (shout out to Nebojsa Ilic for creating it!). Using this kubectl plugin, you can easily create ephemeral `netshoot` containers to troubleshoot existing pods, k8s controller or worker nodes. To install the plugin, follow [these steps](https://github.com/nilic/kubectl-netshoot#installation).
+
+Sample Usage:
+
+```
+# spin up a throwaway pod for troubleshooting
+kubectl netshoot run tmp-shell
+
+# debug using an ephemeral container in an existing pod
+kubectl netshoot debug my-existing-pod
+
+# create a debug session on a node
+kubectl netshoot debug node/my-node
+```
+
+
+
 **Network Problems** 
 
 Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
@@ -133,59 +152,60 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
 
 **Included Packages:** The following packages are included in `netshoot`. We'll go over some with some sample use-cases.
 
-    apache2-utils
-    bash
-    bind-tools
-    bird
-    bridge-utils
-    busybox-extras
-    calicoctl
-    conntrack-tools
-    ctop
-    curl
-    dhcping
-    drill
-    ethtool
-    file
-    fping
-    httpie
-    iftop
-    iperf
-    iproute2
-    ipset
-    iptables
-    iptraf-ng
-    iputils
-    ipvsadm
-    jq
-    libc6-compat
-    liboping
-    ltrace
-    mtr
-    net-snmp-tools
-    netcat-openbsd
-    netgen
-    nftables
-    ngrep
-    nmap
-    nmap-nping
-    openssl
-    py-crypto
-    py2-virtualenv
-    python2
-    scapy
-    socat
-    strace
-    swaks
-    tcpdump
-    tcptraceroute
-    termshark
-    tshark
-    util-linux
-    vim
-    websocat
-    grpcurl
-
+    apache2-utils \
+    bash \
+    bind-tools \
+    bird \
+    bridge-utils \
+    busybox-extras \
+    conntrack-tools \
+    curl \
+    dhcping \
+    drill \
+    ethtool \
+    file\
+    fping \
+    iftop \
+    iperf \
+    iperf3 \
+    iproute2 \
+    ipset \
+    iptables \
+    iptraf-ng \
+    iputils \
+    ipvsadm \
+    jq \
+    libc6-compat \
+    liboping \
+    ltrace \
+    mtr \
+    net-snmp-tools \
+    netcat-openbsd \
+    nftables \
+    ngrep \
+    nmap \
+    nmap-nping \
+    nmap-scripts \
+    openssl \
+    py3-pip \
+    py3-setuptools \
+    scapy \
+    socat \
+    speedtest-cli \
+    openssh \
+    strace \
+    tcpdump \
+    tcptraceroute \
+    tshark \
+    util-linux \
+    vim \
+    git \
+    zsh \
+    websocat \
+    swaks \
+    perl-crypt-ssleay \
+    perl-net-ssleay
+    
 ## **Sample Use-cases** 
 
 ## iperf 
