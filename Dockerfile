@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN /tmp/fetch_binaries.sh
 
-FROM alpine:3.17.0
+FROM alpine:3.17.1
 
 RUN set -ex \
     && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -38,6 +38,7 @@ RUN set -ex \
     iptraf-ng \
     iputils \
     ipvsadm \
+    httpie \
     jq \
     libc6-compat \
     liboping \
@@ -68,9 +69,6 @@ RUN set -ex \
     swaks \
     perl-crypt-ssleay \
     perl-net-ssleay
-
-# Installing httpie ( https://httpie.io/docs#installation)
-RUN pip3 install --upgrade httpie
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
