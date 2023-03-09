@@ -51,6 +51,7 @@ RUN set -ex \
     nmap \
     nmap-nping \
     nmap-scripts \
+    nmon \
     openssl \
     py3-pip \
     py3-setuptools \
