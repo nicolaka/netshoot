@@ -43,6 +43,7 @@ RUN set -ex \
     libc6-compat \
     liboping \
     ltrace \
+    mcjoin \
     mtr \
     net-snmp-tools \
     netcat-openbsd \
