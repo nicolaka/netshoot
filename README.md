@@ -165,6 +165,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     ethtool \
     file\
     fping \
+    grpcurl \
     iftop \
     iperf \
     iperf3 \
