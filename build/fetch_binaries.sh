@@ -62,7 +62,23 @@ get_grpcurl() {
   chmod +x /tmp/grpcurl
 }
 
+get_fortio() {
+  if [ "$ARCH" == "amd64" ]; then
+    TERM_ARCH=x86_64
+  else
+    TERM_ARCH="$ARCH"
+  fi
+  VERSION=$(get_latest_release fortio/fortio | sed -e 's/^v//')
+  LINK="https://github.com/fortio/fortio/releases/download/v${VERSION}/fortio-linux_${ARCH}-${VERSION}.tgz"
+  wget "$LINK" -O /tmp/fortio.tgz  && \
+  tar -zxvf /tmp/fortio.tgz && \
+  mv "usr/bin/fortio" /tmp/fortio && \
+  chmod +x /tmp/fortio
+}
+
+
 get_ctop
 get_calicoctl
 get_termshark
 get_grpcurl
+get_fortio

@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN /tmp/fetch_binaries.sh
 
-FROM alpine:3.17.1
+FROM alpine:3.18.0
 
 RUN set -ex \
     && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -58,6 +58,7 @@ RUN set -ex \
     socat \
     speedtest-cli \
     openssh \
+    oh-my-zsh \
     strace \
     tcpdump \
     tcptraceroute \
@@ -83,13 +84,16 @@ COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 # Installing grpcurl
 COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 
+# Installing fortio
+COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
+
 # Setting User and Home
 USER root
 WORKDIR /root
 ENV HOSTNAME netshoot
 
 # ZSH Themes
-RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
+RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 COPY zshrc .zshrc

@@ -165,6 +165,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     ethtool \
     file\
     fping \
+    grpcurl \
     iftop \
     iperf \
     iperf3 \
@@ -718,6 +719,39 @@ grpcurl -plaintext grpc.server.com:80 my.custom.server.Service/Method
 ```
 
 More info, examples and lots of documentation on `Grpcurl` [here](https://github.com/fullstorydev/grpcurl)
+
+## Fortio
+
+Fortio is a fast, small (4Mb docker image, minimal dependencies), reusable, embeddable go library as well as a command line tool and server process, the server includes a simple web UI and REST API to trigger run and see graphical representation of the results (both a single latency graph and a multiple results comparative min, max, avg, qps and percentiles graphs).
+
+```bash
+$ fortio load http://www.google.com
+Fortio X.Y.Z running at 8 queries per second, 8->8 procs, for 5s: http://www.google.com
+19:10:33 I httprunner.go:84> Starting http test for http://www.google.com with 4 threads at 8.0 qps
+Starting at 8 qps with 4 thread(s) [gomax 8] for 5s : 10 calls each (total 40)
+19:10:39 I periodic.go:314> T002 ended after 5.056753279s : 10 calls. qps=1.9775534712220633
+19:10:39 I periodic.go:314> T001 ended after 5.058085991s : 10 calls. qps=1.9770324224999916
+19:10:39 I periodic.go:314> T000 ended after 5.058796046s : 10 calls. qps=1.9767549252963101
+19:10:39 I periodic.go:314> T003 ended after 5.059557593s : 10 calls. qps=1.9764573910247019
+Ended after 5.059691387s : 40 calls. qps=7.9056
+Sleep times : count 36 avg 0.49175757 +/- 0.007217 min 0.463508712 max 0.502087879 sum 17.7032725
+Aggregated Function Time : count 40 avg 0.060587641 +/- 0.006564 min 0.052549016 max 0.089893269 sum 2.42350566
+# range, mid point, percentile, count
+>= 0.052549 < 0.06 , 0.0562745 , 47.50, 19
+>= 0.06 < 0.07 , 0.065 , 92.50, 18
+>= 0.07 < 0.08 , 0.075 , 97.50, 2
+>= 0.08 <= 0.0898933 , 0.0849466 , 100.00, 1
+# target 50% 0.0605556
+# target 75% 0.0661111
+# target 99% 0.085936
+# target 99.9% 0.0894975
+Code 200 : 40
+Response Header Sizes : count 40 avg 690.475 +/- 15.77 min 592 max 693 sum 27619
+Response Body/Total Sizes : count 40 avg 12565.2 +/- 301.9 min 12319 max 13665 sum 502608
+All done 40 calls (plus 4 warmup) 60.588 ms avg, 7.9 qps
+```
+
+More info, examples and lots of documentation on `Fortio` [here](https://github.com/fortio/fortio)
 
 ## Contribution
 
