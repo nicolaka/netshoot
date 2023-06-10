@@ -87,6 +87,11 @@ COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 # Installing fortio
 COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
 
+# Installing Eric Prydz Downloader
+COPY lib/download_cheese.py /usr/local/bin/download_cheese.py
+
+RUN download_cheese.py
+
 # Setting User and Home
 USER root
 WORKDIR /root
