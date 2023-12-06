@@ -14,8 +14,5 @@ build-arm64:
 build-all:
 		@docker buildx build --platform linux/amd64,linux/arm64 --output "type=image,push=false" --file ./Dockerfile .
 push:
-	 	@docker push ${IMAGENAME}:${VERSION} 
+	 	@docker push ${IMAGENAME}:${VERSION}
 all: build-all push
-
-
-		
