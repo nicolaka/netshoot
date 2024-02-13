@@ -51,6 +51,7 @@ RUN set -ex \
     nmap \
     nmap-nping \
     nmap-scripts \
+    nmon \
     openssl \
     py3-pip \
     py3-setuptools \
@@ -71,6 +72,9 @@ RUN set -ex \
     swaks \
     perl-crypt-ssleay \
     perl-net-ssleay
+
+# Installing tcconfig ( https://tcconfig.readthedocs.io/en/latest/pages/introduction/index.html#installation )
+RUN pip3 install --upgrade tcconfig
 
 # Installing ctop - top-like container monitor
 COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
