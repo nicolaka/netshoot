@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN /tmp/fetch_binaries.sh
 
-FROM alpine:3.18.0
+FROM alpine:3.22.0
 
 RUN set -ex \
     && echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
@@ -62,6 +62,7 @@ RUN set -ex \
     strace \
     tcpdump \
     tcptraceroute \
+    trippy \
     tshark \
     util-linux \
     vim \
@@ -80,6 +81,9 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 
 # Installing termshark
 COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
+
+# Installing ghz
+COPY --from=fetcher /tmp/ghz /usr/local/bin/ghz
 
 # Installing grpcurl
 COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl

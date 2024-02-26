@@ -25,8 +25,8 @@ get_ctop() {
 }
 
 get_calicoctl() {
-  VERSION=$(get_latest_release projectcalico/calicoctl)
-  LINK="https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-${ARCH}"
+  VERSION=$(get_latest_release projectcalico/calico)
+  LINK="https://github.com/projectcalico/calico/releases/download/${VERSION}/calicoctl-linux-${ARCH}"
   wget "$LINK" -O /tmp/calicoctl && chmod +x /tmp/calicoctl
 }
 
@@ -48,6 +48,17 @@ get_termshark() {
   esac
 }
 
+get_ghz() {
+  if [ "$ARCH" == "amd64" ]; then
+    TERM_ARCH=x86_64
+  else
+    TERM_ARCH="$ARCH"
+  fi
+  VERSION=$(get_latest_release bojand/ghz | sed -e 's/^v//')
+  LINK="https://github.com/bojand/ghz/releases/download/v${VERSION}/ghz-linux-${TERM_ARCH}.tar.gz"
+  wget "$LINK" -O /tmp/ghz && chmod +x /tmp/ghz
+}
+
 get_grpcurl() {
   if [ "$ARCH" == "amd64" ]; then
     TERM_ARCH=x86_64
@@ -57,9 +68,10 @@ get_grpcurl() {
   VERSION=$(get_latest_release fullstorydev/grpcurl | sed -e 's/^v//')
   LINK="https://github.com/fullstorydev/grpcurl/releases/download/v${VERSION}/grpcurl_${VERSION}_linux_${TERM_ARCH}.tar.gz"
   wget "$LINK" -O /tmp/grpcurl.tar.gz  && \
-  tar -zxvf /tmp/grpcurl.tar.gz && \
+  tar --no-same-owner -zxvf /tmp/grpcurl.tar.gz && \
   mv "grpcurl" /tmp/grpcurl && \
   chmod +x /tmp/grpcurl
+  chown root:root /tmp/grpcurl
 }
 
 get_fortio() {
@@ -80,5 +92,7 @@ get_fortio() {
 get_ctop
 get_calicoctl
 get_termshark
+get_ghz
 get_grpcurl
 get_fortio
+
