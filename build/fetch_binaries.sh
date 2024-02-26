@@ -48,6 +48,17 @@ get_termshark() {
   esac
 }
 
+get_ghz() {
+  if [ "$ARCH" == "amd64" ]; then
+    TERM_ARCH=x86_64
+  else
+    TERM_ARCH="$ARCH"
+  fi
+  VERSION=$(get_latest_release bojand/ghz | sed -e 's/^v//')
+  LINK="https://github.com/bojand/ghz/releases/download/v${VERSION}/ghz-linux-${TERM_ARCH}.tar.gz"
+  wget "$LINK" -O /tmp/ghz && chmod +x /tmp/ghz
+}
+
 get_grpcurl() {
   if [ "$ARCH" == "amd64" ]; then
     TERM_ARCH=x86_64
@@ -80,5 +91,6 @@ get_fortio() {
 get_ctop
 get_calicoctl
 get_termshark
+get_ghz
 get_grpcurl
 get_fortio
