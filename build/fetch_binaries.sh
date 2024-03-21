@@ -60,6 +60,7 @@ get_grpcurl() {
   tar -zxvf /tmp/grpcurl.tar.gz && \
   mv "grpcurl" /tmp/grpcurl && \
   chmod +x /tmp/grpcurl
+  chown root:root /tmp/grpcurl
 }
 
 get_fortio() {
