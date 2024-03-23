@@ -87,6 +87,9 @@ COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 # Installing fortio
 COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
 
+# Fix the local root user vulnerability issue
+RUN echo -e 'PasswordAuthentication no\nPermitEmptyPasswords no\nPermitRootLogin prohibit-password' >> /etc/ssh/sshd_config
+
 # Setting User and Home
 USER root
 WORKDIR /root
