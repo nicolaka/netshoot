@@ -1,25 +1,39 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: nginx-netshoot
-    labels:
-        app: nginx-netshoot
+  name: nginx-netshoot
+  labels:
+    app: nginx-netshoot
 spec:
- replicas: 1
- selector:
+  replicas: 1
+  selector:
     matchLabels:
-        app: nginx-netshoot
- template:
+      app: nginx-netshoot
+  template:
     metadata:
-     labels:
+      labels:
         app: nginx-netshoot
     spec:
-        containers:
-        - name: nginx
-          image: nginx:1.14.2
-          ports:
-            - containerPort: 80
-        - name: netshoot
-          image: nicolaka/netshoot
-          command: ["/bin/bash"]
-          args: ["-c", "while true; do ping localhost; sleep 60;done"]
+      containers:
+      - name: nginx
+        image: nginx:1.27.0
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      - name: netshoot
+        image: steled/netshoot
+        command: ["/bin/bash"]
+        args: ["-c", "while true; do ping localhost; sleep 60;done"]
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

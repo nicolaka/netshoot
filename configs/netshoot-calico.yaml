@@ -22,9 +22,16 @@ spec:
       serviceAccountName: cni-plugin
       hostNetwork: true
       containers:
-      - image: nicolaka/netshoot
+      - image: steled/netshoot
         name: netshoot
-        command: ["ping","localhost"]
+        command: ["ping", "localhost"]
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "125m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         volumeMounts:
         - mountPath: /calico-secrets
           name: etcd-certs
@@ -49,13 +56,12 @@ spec:
               key: etcd_cert
               name: calico-config
       volumes:
-        - name: etcd-certs
-          secret:
-           defaultMode: 420
-           secretName: calico-etcd-secrets
-        - name: bird-ctl
-          hostPath:
-            path: /var/run/calico/bird.ctl
+      - name: etcd-certs
+        secret:
+         defaultMode: 420
+         secretName: calico-etcd-secrets
+      - name: bird-ctl
+        hostPath:
+          path: /var/run/calico/bird.ctl
       nodeSelector:
         node-role.kubernetes.io/master: ""
-
