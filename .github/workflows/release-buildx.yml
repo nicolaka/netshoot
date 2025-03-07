@@ -44,7 +44,7 @@ jobs:
             --file ./Dockerfile \
             --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
             --tag $GITHUB_REPOSITORY:$RELEASE_VERSION \
-            --tag $GITHUB_REPOSITORY:latest
+            --tag $GITHUB_REPOSITORY:latest .
 
 
             
