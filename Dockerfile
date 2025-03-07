@@ -82,7 +82,7 @@ COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 #COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
 # Installing grpcurl
-COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
+#COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 
 # Installing fortio
 COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
