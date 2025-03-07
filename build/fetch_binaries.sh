@@ -20,13 +20,15 @@ case $ARCH in
 esac
 
 get_ctop() {
-  VERSION=$(get_latest_release bcicen/ctop | sed -e 's/^v//')
+  #VERSION=$(get_latest_release bcicen/ctop | sed -e 's/^v//')
+  VERSION="0.7.7"
   LINK="https://github.com/bcicen/ctop/releases/download/v${VERSION}/ctop-${VERSION}-linux-${ARCH}"
   wget "$LINK" -O /tmp/ctop && chmod +x /tmp/ctop
 }
 
 get_calicoctl() {
-  VERSION=$(get_latest_release projectcalico/calico)
+  #VERSION=$(get_latest_release projectcalico/calico)
+  VERSION="3.29.2"
   LINK="https://github.com/projectcalico/calico/releases/download/${VERSION}/calicoctl-linux-${ARCH}"
   wget "$LINK" -O /tmp/calicoctl && chmod +x /tmp/calicoctl
 }
@@ -34,7 +36,8 @@ get_calicoctl() {
 get_termshark() {
   case "$ARCH" in
     *)
-      VERSION=$(get_latest_release gcla/termshark | sed -e 's/^v//')
+      #VERSION=$(get_latest_release gcla/termshark | sed -e 's/^v//')
+      VERSION="2.4.0"
       echo $VERSION
       if [ "$ARCH" == "amd64" ]; then
         TERM_ARCH=x64
@@ -56,13 +59,14 @@ get_grpcurl() {
   else
     TERM_ARCH="$ARCH"
   fi
-  VERSION=$(get_latest_release fullstorydev/grpcurl | sed -e 's/^v//')
+  #VERSION=$(get_latest_release fullstorydev/grpcurl | sed -e 's/^v//')
+  VERSION="1.9.2"
   LINK="https://github.com/fullstorydev/grpcurl/releases/download/v${VERSION}/grpcurl_${VERSION}_linux_${TERM_ARCH}.tar.gz"
   wget "$LINK" -O /tmp/grpcurl.tar.gz  && \
   tar --no-same-owner -zxvf /tmp/grpcurl.tar.gz && \
   mv "grpcurl" /tmp/grpcurl && \
   chmod +x /tmp/grpcurl
-  chown root:root /tmp/grpcurl
+  #chown root:root /tmp/grpcurl
 }
 
 get_fortio() {
@@ -71,7 +75,8 @@ get_fortio() {
   else
     TERM_ARCH="$ARCH"
   fi
-  VERSION=$(get_latest_release fortio/fortio | sed -e 's/^v//')
+  #VERSION=$(get_latest_release fortio/fortio | sed -e 's/^v//')
+  VERSION="1.68.0"
   LINK="https://github.com/fortio/fortio/releases/download/v${VERSION}/fortio-linux_${ARCH}-${VERSION}.tgz"
   wget "$LINK" -O /tmp/fortio.tgz  && \
   tar -zxvf /tmp/fortio.tgz && \
