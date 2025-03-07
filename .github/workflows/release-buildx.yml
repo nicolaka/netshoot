@@ -37,16 +37,14 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
       -
         name: Run Buildx
-        env: 
-          GITHUB_REPO: "binetsky/netshoot"
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=true" \
             --file ./Dockerfile \
-            --tag $GITHUB_REPO:$GITHUB_SHA \
-            --tag $GITHUB_REPO:$RELEASE_VERSION \
-            --tag $GITHUB_REPO:latest
+            --tag binetsky/netshoot:$GITHUB_SHA \
+            --tag binetsky/netshoot:$RELEASE_VERSION \
+            --tag binetsky/netshoot:latest
 
 
             
