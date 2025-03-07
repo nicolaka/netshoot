@@ -73,13 +73,13 @@ RUN set -ex \
     perl-net-ssleay
 
 # Installing ctop - top-like container monitor
-COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
+#COPY --from=fetcher /tmp/ctop /usr/local/bin/ctop
 
 # Installing calicoctl
 COPY --from=fetcher /tmp/calicoctl /usr/local/bin/calicoctl
 
 # Installing termshark
-COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
+#COPY --from=fetcher /tmp/termshark /usr/local/bin/termshark
 
 # Installing grpcurl
 COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
