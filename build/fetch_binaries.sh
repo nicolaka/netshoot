@@ -88,5 +88,5 @@ get_fortio() {
 #get_ctop
 get_calicoctl
 #get_termshark
-get_grpcurl
+#get_grpcurl
 get_fortio
