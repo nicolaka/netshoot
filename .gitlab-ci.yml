@@ -1,0 +1,53 @@
+# This file is a template, and might need editing before it works on your project.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/development/cicd/templates/
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Docker.gitlab-ci.yml
+
+#kaniko-build:
+#  stage: build
+#  image:
+#    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+#    entrypoint: [""]
+#  script:
+#    - /kaniko/executor
+#      --context "${CI_PROJECT_DIR}"
+#      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+#      --no-push
+#      #--destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+#  #rules:
+#  #  - if: $CI_COMMIT_TAG
+
+# Build a Docker image with CI/CD and push to the GitLab registry.
+# Docker-in-Docker documentation: https://docs.gitlab.com/ci/docker/using_docker_build/
+#
+# This template uses one generic job with conditional builds
+# for the default branch and all other (MR) branches.
+variables:
+  CI_BUILD_IMAGE: "registry.gitlab.com/gdunstone/docker-buildx-qemu"
+
+docker-build:
+  image: $CI_BUILD_IMAGE
+  stage: build
+  services:
+    - name: docker:dind
+  before_script:
+  #  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  # Use docker-container driver to allow useful features (push/multi-platform)
+  #  - update-binfmts --enable # Important: Ensures execution of other binary formats is enabled in the kernel
+    - docker buildx create --driver docker-container --use
+    - docker buildx inspect --bootstrap
+  script:
+    - >
+        docker buildx build --platform=linux/amd64
+        --progress=plain 
+        --push=false
+        --build-arg=CI_PROJECT_PATH=$CI_PROJECT_PATH .
+#        --cache-from=type=registry,ref=$CI_REGISTRY_IMAGE/cache:latest
+#        --cache-to=type=registry,ref=$CI_REGISTRY_IMAGE/cache:latest
+#        -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHA" 
+#        -t "$CI_REGISTRY_IMAGE:latest" .    
+  rules:
+    - if: $CI_COMMIT_BRANCH
+      exists:
+        - Dockerfile
