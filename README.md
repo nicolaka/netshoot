@@ -162,6 +162,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     curl \
     dhcping \
     drill \
+    ecapture \
     ethtool \
     file\
     fping \
@@ -752,6 +753,86 @@ All done 40 calls (plus 4 warmup) 60.588 ms avg, 7.9 qps
 ```
 
 More info, examples and lots of documentation on `Fortio` [here](https://github.com/fortio/fortio)
+
+## Ecapture
+
+Capture SSL/TLS text content without a CA certificate using eBPF.  
+> [!WARNING]  
+> Supports Linux/Android kernel versions x86_64 4.18 and above, aarch64 5.5 and above.  
+> Need `--privileged` mode to run
+
+```bash
+$ ecapture tls -m text -i eth0 &
+2024-09-16T13:07:00Z INF AppName="eCapture(旁观者)"
+2024-09-16T13:07:00Z INF HomePage=https://ecapture.cc
+2024-09-16T13:07:00Z INF Repository=https://github.com/gojue/ecapture
+2024-09-16T13:07:00Z INF Author="CFC4N <cfc4ncs@gmail.com>"
+2024-09-16T13:07:00Z INF Description="Capturing SSL/TLS plaintext without a CA certificate using eBPF. Supported on Linux/Android kernels for amd64/arm64."
+2024-09-16T13:07:00Z INF Version=linux_amd64:v0.8.6:6.5.0-1025-azure
+2024-09-16T13:07:00Z INF Listen=localhost:28256
+2024-09-16T13:07:00Z INF eCapture running logs logger=
+2024-09-16T13:07:00Z INF the file handler that receives the captured event eventCollector=
+2024-09-16T13:07:00Z INF listen=localhost:28256
+2024-09-16T13:07:00Z INF https server starting...You can update the configuration file via the HTTP interface.
+2024-09-16T13:07:00Z WRN ========== module starting. ==========
+2024-09-16T13:07:00Z INF Kernel Info=5.10.209 Pid=111
+2024-09-16T13:07:00Z WRN Your environment is like a container. We won't be able to detect the BTF configuration.
+If eCapture fails to run, try specifying the BTF mode. use `-b 2` to specify non-CORE mode.
+2024-09-16T13:07:00Z INF BTF bytecode mode: CORE. btfMode=0
+2024-09-16T13:07:00Z INF master key keylogger has been set. eBPFProgramType=Text keylogger=
+2024-09-16T13:07:00Z INF module initialization. isReload=false moduleName=EBPFProbeOPENSSL
+2024-09-16T13:07:00Z INF Module.Run()
+2024-09-16T13:07:00Z WRN OpenSSL/BoringSSL version not found from shared library file, used default version OpenSSL Version=linux_default_3_0
+2024-09-16T13:07:00Z INF Hook masterKey function ElfType=2 Functions=["SSL_get_wbio","SSL_in_before","SSL_do_handshake"] binrayPath=/usr/lib/libssl.so.3
+2024-09-16T13:07:00Z INF target all process.
+2024-09-16T13:07:00Z INF target all users.
+2024-09-16T13:07:00Z INF setupManagers eBPFProgramType=Text
+2024-09-16T13:07:00Z INF BPF bytecode file is matched. bpfFileName=user/bytecode/openssl_3_0_0_kern_core.o
+2024-09-16T13:07:00Z INF perfEventReader created mapSize(MB)=4
+2024-09-16T13:07:00Z INF perfEventReader created mapSize(MB)=4
+2024-09-16T13:07:00Z INF module started successfully. isReload=false moduleName=EBPFProbeOPENSSL
+
+$ curl -Lso /dev/null https://www.google.com
+Frame Type      =>      SETTINGS
+
+Frame Type      =>      WINDOW_UPDATE
+
+Frame Type      =>      HEADERS
+header field ":method" = "GET"
+header field ":scheme" = "https"
+header field ":authority" = "www.google.com"
+header field ":path" = "/"
+header field "user-agent" = "curl/8.9.1"
+header field "accept" = "*/*"
+
+Frame Type      =>      SETTINGS
+
+Frame Type      =>      GOAWAY
+
+2024-09-16T13:07:52Z ??? UUID:293216_293216_curl_3841860423_0_0.0.0.0, Name:HTTP2Response, Type:4, Length:22692
+
+Frame Type      =>      SETTINGS
+
+Frame Type      =>      WINDOW_UPDATE
+
+Frame Type      =>      SETTINGS
+
+Frame Type      =>      HEADERS
+header field ":status" = "200"
+header field "p3p" = "CP=\"This is not a P3P policy! See g.co/p3phelp for more info.\""   
+header field "x-xss-protection" = "0"
+header field "x-frame-options" = "SAMEORIGIN"
+header field "set-cookie" = "AEC=AVYB7cqtr_ifXJKex2MyxFtJ6nX0UyPecEbQGVQ0cc0p583fYikTPKRsKg; expires=Sat, 15-Mar-2025 13:07:50 GMT; path=/; domain=.google.com; Secure; HttpOnly; SameSite=lax"
+header field "alt-svc" = "h3=\":443\"; ma=2592000,h3-29=\":443\"; ma=2592000"
+header field "accept-ranges" = "none"
+header field "vary" = "Accept-Encoding"
+
+Frame Type      =>      PING
+
+Frame Type      =>      DATA
+<!doctype html><html itemscope="" itemtype="http://schema.org/WebPage" lang="fr"><head><meta content="text/html; charset=UTF-8"
+...
+```
 
 ## Contribution
 

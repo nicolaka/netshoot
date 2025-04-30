@@ -77,9 +77,18 @@ get_fortio() {
   chmod +x /tmp/fortio
 }
 
+get_ecapture() {
+  VERSION=$(get_latest_release gojue/ecapture)
+  LINK="https://github.com/gojue/ecapture/releases/download/${VERSION}/ecapture-${VERSION}-linux-${ARCH}.tar.gz"
+  wget "$LINK" -O /tmp/ecapture.tar.gz && \
+  tar -zxvf /tmp/ecapture.tar.gz && \
+  mv ecapture-${VERSION}-linux-${ARCH}/ecapture "/tmp/ecapture" && \
+  chmod +x /tmp/ecapture
+}
 
 get_ctop
 get_calicoctl
 get_termshark
 get_grpcurl
 get_fortio
+get_ecapture
