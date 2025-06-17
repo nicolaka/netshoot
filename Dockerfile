@@ -35,6 +35,7 @@ RUN set -ex \
     iproute2 \
     ipset \
     iptables \
+    iptables-legacy \
     iptraf-ng \
     iputils \
     ipvsadm \
