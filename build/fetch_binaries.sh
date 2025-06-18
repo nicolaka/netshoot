@@ -57,9 +57,10 @@ get_grpcurl() {
   VERSION=$(get_latest_release fullstorydev/grpcurl | sed -e 's/^v//')
   LINK="https://github.com/fullstorydev/grpcurl/releases/download/v${VERSION}/grpcurl_${VERSION}_linux_${TERM_ARCH}.tar.gz"
   wget "$LINK" -O /tmp/grpcurl.tar.gz  && \
-  tar -zxvf /tmp/grpcurl.tar.gz && \
+  tar --no-same-owner -zxvf /tmp/grpcurl.tar.gz && \
   mv "grpcurl" /tmp/grpcurl && \
   chmod +x /tmp/grpcurl
+  chown root:root /tmp/grpcurl
 }
 
 get_fortio() {
