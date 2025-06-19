@@ -77,9 +77,17 @@ get_fortio() {
   chmod +x /tmp/fortio
 }
 
+get_tcpping() {
+  VERSION=$(get_latest_release deajan/tcpping | sed -e 's/^v//')
+  LINK="https://raw.githubusercontent.com/deajan/tcpping/refs/tags/v${VERSION}/tcpping"
+  wget "$LINK" -O/tmp/tcpping && \
+  chmod +x /tmp/tcpping
+}
+
 
 get_ctop
 get_calicoctl
 get_termshark
 get_grpcurl
 get_fortio
+get_tcpping

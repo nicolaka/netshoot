@@ -87,6 +87,8 @@ COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 # Installing fortio
 COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
 
+COPY --from=fetcher /tmp/tcpping /usr/local/bin/tcpping
+
 # Setting User and Home
 USER root
 WORKDIR /root
