@@ -161,6 +161,7 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     conntrack-tools \
     curl \
     dhcping \
+    dig \
     drill \
     ethtool \
     file\
