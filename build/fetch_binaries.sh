@@ -25,8 +25,8 @@ get_ctop() {
 }
 
 get_calicoctl() {
-  VERSION=$(get_latest_release projectcalico/calicoctl)
-  LINK="https://github.com/projectcalico/calicoctl/releases/download/${VERSION}/calicoctl-linux-${ARCH}"
+  VERSION=$(get_latest_release projectcalico/calico)
+  LINK="https://github.com/projectcalico/calico/releases/download/${VERSION}/calicoctl-linux-${ARCH}"
   wget "$LINK" -O /tmp/calicoctl && chmod +x /tmp/calicoctl
 }
 
@@ -78,8 +78,24 @@ get_fortio() {
 }
 
 
+get_skbdump() {
+  VERSION=$(get_latest_release jschwinger233/skbdump | sed -e 's/^v//')
+  if [ "$ARCH" == "amd64" ]; then
+  LINK="https://github.com/jschwinger233/skbdump/releases/download/v${VERSION}/skbdump_${VERSION}_linux_${ARCH}.tar.gz"
+  
+    wget "$LINK" -O /tmp/skbdump.tar.gz && \
+    tar -zxvf /tmp/skbdump.tar.gz && \
+    mv "skbdump" /tmp/skbdump && \
+    chmod +x /tmp/skbdump
+  else
+    echo "skbdump not available for architecture ${ARCH}, skipping." > /tmp/skbdump
+    chmod +x /tmp/skbdump
+  fi
+}
+
 get_ctop
 get_calicoctl
 get_termshark
 get_grpcurl
 get_fortio
+get_skbdump

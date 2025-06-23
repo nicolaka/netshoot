@@ -62,6 +62,7 @@ RUN set -ex \
     strace \
     tcpdump \
     tcptraceroute \
+    trippy \
     tshark \
     util-linux \
     vim \
@@ -86,6 +87,10 @@ COPY --from=fetcher /tmp/grpcurl /usr/local/bin/grpcurl
 
 # Installing fortio
 COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
+
+# Installing skbdump
+COPY --from=fetcher /tmp/skbdump /usr/local/bin/skbdump
+
 
 # Setting User and Home
 USER root
