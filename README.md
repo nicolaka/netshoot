@@ -165,11 +165,8 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     ethtool \
     file \
     fping \
-<<<<<<< HEAD
     ghz \
     grpcurl \
-=======
->>>>>>> upstream/master
     iftop \
     iperf \
     iperf3 \
@@ -370,7 +367,6 @@ ghz --insecure grpc.server.com:80 --call my.custom.server.Service/Method
 ```
 
 More info, examples and lots of documentation on `Ghz` [here](https://github.com/bojand/ghz)
-
 
 ## Contribution
 
