@@ -165,6 +165,8 @@ To troubleshoot these issues, `netshoot` includes a set of powerful tools as rec
     ethtool \
     file \
     fping \
+    ghz \
+    grpcurl \
     iftop \
     iperf \
     iperf3 \
@@ -351,6 +353,20 @@ Fortio is a fast, small, reusable, embeddable go library as well as a command li
 ```
 $ fortio load http://www.google.com
 ```
+
+### Ghz
+ghz is a command-line tool that lets you load test a gRPC server. It's basically hey! for gRPC servers.
+
+Invoking an RPC on a trusted server (e.g. TLS without self-signed key or custom CA) that requires no client certs and supports server reflection is the simplest thing to do with ghz. This minimal invocation sends an empty request body:
+
+```bash
+ghz grpc.server.com:443 --call my.custom.server.Service/Method
+
+# no TLS
+ghz --insecure grpc.server.com:80 --call my.custom.server.Service/Method
+```
+
+More info, examples and lots of documentation on `Ghz` [here](https://github.com/bojand/ghz)
 
 ## Contribution
 
