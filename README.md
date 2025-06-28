@@ -362,5 +362,3 @@ Feel free to contribute networking troubleshooting tools and use-cases by openin
 * If you're building the tool from source, make sure you leverage the multi-stage build process and update the `build/fetch_binaries.sh` script 
 * Update the README's list of included packages AND include a section on how to use the tool
 * If the tool you're adding supports multi-platform, please make sure you highlight that.
-
-
