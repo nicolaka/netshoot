@@ -72,24 +72,24 @@ services:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: nginx-netshoot
-    labels:
-        app: nginx-netshoot
+  name: nginx-netshoot
+  labels:
+    app: nginx-netshoot
 spec:
-replicas: 1
-selector:
+  replicas: 1
+  selector:
     matchLabels:
-        app: nginx-netshoot
-template:
+      app: nginx-netshoot
+  template:
     metadata:
-    labels:
+      labels:
         app: nginx-netshoot
     spec:
-        containers:
+      containers:
         - name: nginx
           image: nginx:1.14.2
           ports:
-              - containerPort: 80
+            - containerPort: 80
         - name: netshoot
           image: nicolaka/netshoot
           command: ["/bin/bash"]
