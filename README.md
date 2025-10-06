@@ -21,11 +21,11 @@ Cool thing about namespaces is that you can switch between them. You can enter a
 
 * **Container's Network Namespace:** If you're having networking issues with your application's container, you can launch `netshoot` with that container's network namespace like this:
 
-    `$ docker run -it --net container:<container_name> nicolaka/netshoot`
+    `$ docker run -it --net container:<container_name> j4rj4r/netshoot`
 
 * **Host's Network Namespace:** If you think the networking issue is on the host itself, you can launch `netshoot` with that host's network namespace:
 
-    `$ docker run -it --net host nicolaka/netshoot`
+    `$ docker run -it --net host j4rj4r/netshoot`
 
 * **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
 
@@ -37,7 +37,7 @@ You can easily deploy `netshoot` using Docker Compose using something like this:
 version: "3.6"
 services:
   tcpdump:
-    image: nicolaka/netshoot
+    image: j4rj4r/netshoot
     depends_on:
       - nginx
     command: tcpdump -i eth0 -w /data/nginx.pcap
@@ -55,15 +55,15 @@ services:
 
 * if you want to debug using an [ephemeral container](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container-example) in an existing pod:
 
-    `$ kubectl debug mypod -it --image=nicolaka/netshoot`
+    `$ kubectl debug mypod -it --image=j4rj4r/netshoot`
 
 * if you want to spin up a throw away pod for debugging.
 
-    `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot`
+    `$ kubectl run tmp-shell --rm -i --tty --image j4rj4r/netshoot`
 
 * if you want to spin up a container on the host's network namespace.
 
-    `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot`
+    `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image j4rj4r/netshoot`
 
 * if you want to use netshoot as a sidecar container to troubleshoot your application container
 
@@ -91,7 +91,7 @@ services:
             ports:
                 - containerPort: 80
             - name: netshoot
-            image: nicolaka/netshoot
+            image: j4rj4r/netshoot
             command: ["/bin/bash"]
             args: ["-c", "while true; do ping localhost; sleep 60;done"]
 
@@ -110,7 +110,7 @@ nginx-netshoot-7f9c6957f8-kr8q6   2/2     Running   0          4m27s
     88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
     dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
 
-    Welcome to Netshoot! (github.com/nicolaka/netshoot)
+    Welcome to Netshoot! (github.com/j4rj4r/netshoot)
 
 
     nginx-netshoot-7f9c6957f8-kr8q6 $ 
@@ -227,8 +227,8 @@ Example:
 
 ```
 $ docker network create -d bridge perf-test
-$ docker run -d --rm --net perf-test --name perf-test-a nicolaka/netshoot iperf -s -p 9999
-$ docker run -it --rm --net perf-test --name perf-test-b nicolaka/netshoot iperf -c perf-test-a -p 9999
+$ docker run -d --rm --net perf-test --name perf-test-a j4rj4r/netshoot iperf -s -p 9999
+$ docker run -it --rm --net perf-test --name perf-test-b j4rj4r/netshoot iperf -c perf-test-a -p 9999
 ```
 
 ### tcpdump
@@ -236,7 +236,7 @@ $ docker run -it --rm --net perf-test --name perf-test-b nicolaka/netshoot iperf
 **tcpdump** is a powerful and common packet analyzer that runs under the command line. It allows the user to display TCP/IP and other packets being transmitted or received over an attached network interface.
 
 ```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot
+$ docker run -it --net container:perf-test-a j4rj4r/netshoot
 / # tcpdump -i eth0 port 9999 -c 1 -Xvv
 ```
 
@@ -245,7 +245,7 @@ $ docker run -it --net container:perf-test-a nicolaka/netshoot
 Purpose: `netstat` is a useful tool for checking your network configuration and activity.
 
 ```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot
+$ docker run -it --net container:perf-test-a j4rj4r/netshoot
 / # netstat -tulpn
 ```
 
@@ -254,7 +254,7 @@ $ docker run -it --net container:perf-test-a nicolaka/netshoot
 `nmap` ("Network Mapper") is an open source tool for network exploration and security auditing. It is very useful for scanning to see which ports are open between a given set of hosts.
 
 ```
-$ docker run -it --privileged nicolaka/netshoot nmap -p 12376-12390 -dd 172.31.24.25
+$ docker run -it --privileged j4rj4r/netshoot nmap -p 12376-12390 -dd 172.31.24.25
 ```
 
 ### iftop
@@ -262,7 +262,7 @@ $ docker run -it --privileged nicolaka/netshoot nmap -p 12376-12390 -dd 172.31.2
 Purpose: iftop does for network usage what top does for CPU usage. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts.
 
 ```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot iftop -i eth0
+$ docker run -it --net container:perf-test-a j4rj4r/netshoot iftop -i eth0
 ```
 
 ### drill
@@ -270,7 +270,7 @@ $ docker run -it --net container:perf-test-a nicolaka/netshoot iftop -i eth0
 Purpose: drill is a tool to designed to get all sorts of information out of the DNS.
 
 ```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot drill -V 5 perf-test-b
+$ docker run -it --net container:perf-test-a j4rj4r/netshoot drill -V 5 perf-test-b
 ```
 
 ### netcat
@@ -279,8 +279,8 @@ Purpose: a simple Unix utility that reads and writes data across network connect
 
 ```
 $ docker network create -d bridge my-br
-$ docker run -d --rm --net my-br --name service-a nicolaka/netshoot nc -l 8080
-$ docker run -it --rm --net my-br --name service-b nicolaka/netshoot nc -vz service-a 8080
+$ docker run -d --rm --net my-br --name service-a j4rj4r/netshoot nc -l 8080
+$ docker run -it --rm --net my-br --name service-b j4rj4r/netshoot nc -vz service-a 8080
 ```
 
 ### iproute2
@@ -288,7 +288,7 @@ $ docker run -it --rm --net my-br --name service-b nicolaka/netshoot nc -vz serv
 Purpose: a collection of utilities for controlling TCP / IP networking and traffic control in Linux.
 
 ```
-$ docker run -it --net host nicolaka/netshoot
+$ docker run -it --net host j4rj4r/netshoot
 / # ip route show
 / # ip neigh show
 ```
@@ -298,7 +298,7 @@ $ docker run -it --net host nicolaka/netshoot
 Purpose: `nsenter` is a powerful tool allowing you to enter into any namespaces. `nsenter` is available inside `netshoot` but requires `netshoot` to be run as a privileged container. Additionally, you may want to mount the `/var/run/docker/netns` directory to be able to enter any network namespace including bridge networks.
 
 ```
-$ docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privileged=true nicolaka/netshoot
+$ docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privileged=true j4rj4r/netshoot
 / # cd /var/run/docker/netns/
 /var/run/docker/netns # ls
 / # nsenter --net=/var/run/docker/netns/<namespace> sh
@@ -309,7 +309,7 @@ $ docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privilege
 ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
 
 ```
-$ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop
+$ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock j4rj4r/netshoot ctop
 ```
 
 ### Termshark
@@ -317,8 +317,8 @@ $ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/nets
 Termshark is a terminal user-interface for tshark. It allows user to read pcap files or sniff live interfaces with Wireshark's display filters.
 
 ```
-$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -it nicolaka/netshoot termshark -i eth0 icmp
-$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it nicolaka/netshoot termshark -r /tmp/ipv4frags.pcap
+$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -it j4rj4r/netshoot termshark -i eth0 icmp
+$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it j4rj4r/netshoot termshark -r /tmp/ipv4frags.pcap
 ```
 
 ### Swaks

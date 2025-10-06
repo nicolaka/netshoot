@@ -30,6 +30,35 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=false" \
             --file ./Dockerfile .
+      -
+        name: Build image for security scan
+        run: |
+          docker buildx build \
+            --platform linux/amd64 \
+            --load \
+            --tag netshoot:test \
+            --file ./Dockerfile .
+      -
+        name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'netshoot:test'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+      -
+        name: Upload Trivy results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+      -
+        name: Run Trivy vulnerability scanner (table output)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'netshoot:test'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
 
 
             
