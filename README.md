@@ -66,54 +66,55 @@ services:
     `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot`
 
 * if you want to use netshoot as a sidecar container to troubleshoot your application container
-
- ```
-    $ cat netshoot-sidecar.yaml
-    apiVersion: apps/v1
-    kind: Deployment
+ ```yaml
+# netshoot-sidecar.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-netshoot
+  labels:
+    app: nginx-netshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-netshoot
+  template:
     metadata:
-        name: nginx-netshoot
-        labels:
-            app: nginx-netshoot
+      labels:
+        app: nginx-netshoot
     spec:
-    replicas: 1
-    selector:
-        matchLabels:
-            app: nginx-netshoot
-    template:
-        metadata:
-        labels:
-            app: nginx-netshoot
-        spec:
-            containers:
-            - name: nginx
-            image: nginx:1.14.2
-            ports:
-                - containerPort: 80
-            - name: netshoot
-            image: nicolaka/netshoot
-            command: ["/bin/bash"]
-            args: ["-c", "while true; do ping localhost; sleep 60;done"]
+      containers:
+        - name: nginx
+          image: nginx:1.14.2
+          ports:
+            - containerPort: 80
+        - name: netshoot
+          image: nicolaka/netshoot
+          command: ["/bin/bash"]
+          args: ["-c", "while true; do ping localhost; sleep 60;done"]
+ ```
 
-    $ kubectl apply -f netshoot-sidecar.yaml
-      deployment.apps/nginx-netshoot created
+ ```bash
+$ kubectl apply -f netshoot-sidecar.yaml
+deployment.apps/nginx-netshoot created
 
-    $ kubectl get pod
+$ kubectl get pod
 NAME                              READY   STATUS    RESTARTS   AGE
 nginx-netshoot-7f9c6957f8-kr8q6   2/2     Running   0          4m27s
 
-    $ kubectl exec -it nginx-netshoot-7f9c6957f8-kr8q6 -c netshoot -- /bin/zsh
-                        dP            dP                           dP
-                        88            88                           88
-    88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
-    88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
-    88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
-    dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
+$ kubectl exec -it nginx-netshoot-7f9c6957f8-kr8q6 -c netshoot -- /bin/zsh
+                    dP            dP                           dP
+                    88            88                           88
+88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
+88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
+88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
+dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
 
-    Welcome to Netshoot! (github.com/nicolaka/netshoot)
+Welcome to Netshoot! (github.com/nicolaka/netshoot)
 
-
-    nginx-netshoot-7f9c6957f8-kr8q6 $ 
+nginx-netshoot-7f9c6957f8-kr8q6 $ 
  ```
 
 ## The netshoot kubectl plugin
