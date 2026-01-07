@@ -2,7 +2,7 @@
 
 # Build Vars
 IMAGENAME=nicolaka/netshoot
-VERSION=0.1
+VERSION=0.15
 
 
 .DEFAULT_GOAL := all
