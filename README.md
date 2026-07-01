@@ -9,39 +9,57 @@
 dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
 ```
 
-**Purpose:** Docker and Kubernetes network troubleshooting can become complex. With proper understanding of how Docker and Kubernetes networking works and the right set of tools, you can troubleshoot and resolve these networking issues. The `netshoot` container has a set of powerful networking troubleshooting tools that can be used to troubleshoot Docker networking issues. Along with these tools come a set of use-cases that show how this container can be used in real-world scenarios.
+## Quick Start
 
-**Network Namespaces:** Before starting to use this tool, it's important to go over one key topic: **Network Namespaces**. Network namespaces provide isolation of the system resources associated with networking. Docker uses network and other type of namespaces (`pid`,`mount`,`user`..etc) to create an isolated environment for each container. Everything from interfaces, routes, and IPs is completely isolated within the network namespace of the container. 
+```bash
+# Share a running container's network namespace
+docker run -it --net container:<container_name> nicolaka/netshoot
 
-Kubernetes also uses network namespaces. Kubelets creates a network namespace per pod where all containers in that pod share that same network namespace (eths,IP, tcp sockets...etc). This is a key difference between Docker containers and Kubernetes pods.
+# Use the host's network namespace
+docker run -it --net host nicolaka/netshoot
 
-Cool thing about namespaces is that you can switch between them. You can enter a different container's network namespace, perform some troubleshooting on its network's stack with tools that aren't even installed on that container. Additionally, `netshoot` can be used to troubleshoot the host itself by using the host's network namespace. This allows you to perform any troubleshooting without installing any new packages directly on the host or your application's package. 
-
-## Netshoot with Docker 
-
-* **Container's Network Namespace:** If you're having networking issues with your application's container, you can launch `netshoot` with that container's network namespace like this:
-
-    `$ docker run -it --net container:<container_name> nicolaka/netshoot`
-
-* **Host's Network Namespace:** If you think the networking issue is on the host itself, you can launch `netshoot` with that host's network namespace:
-
-    `$ docker run -it --net host nicolaka/netshoot`
-
-* **Network's Network Namespace:** If you want to troubleshoot a Docker network, you can enter the network's namespace using `nsenter`. This is explained in the `nsenter` section below.
-
-## Netshoot with Docker Compose
-
-You can easily deploy `netshoot` using Docker Compose using something like this:
-
+# Ephemeral debug container in Kubernetes
+kubectl debug <pod> -it --image=nicolaka/netshoot
 ```
+
+## Why netshoot
+
+Docker and Kubernetes isolate every container in its own **network namespace** — its own interfaces, routes, and IP stack. netshoot exploits the fact that you can _enter_ any namespace without modifying what's running inside it.
+
+- **Debug a container** without installing tools into its image
+- **Debug a host** without installing anything on it
+- **Debug in Kubernetes** as an ephemeral container, throwaway pod, or sidecar
+
+## Launch Options
+
+### Docker
+
+```bash
+# Enter a specific container's namespace
+docker run -it --net container:<container_name> nicolaka/netshoot
+
+# Enter the host's namespace
+docker run -it --net host nicolaka/netshoot
+
+# Enter a Docker bridge network's namespace via nsenter
+docker run -it --rm \
+  -v /var/run/docker/netns:/var/run/docker/netns \
+  --privileged \
+  nicolaka/netshoot
+# then: nsenter --net=/var/run/docker/netns/<id> sh
+```
+
+### Docker Compose
+
+```yaml
 version: "3.6"
 services:
-  tcpdump:
+  netshoot:
     image: nicolaka/netshoot
     depends_on:
       - nginx
     command: tcpdump -i eth0 -w /data/nginx.pcap
-    network_mode: service:nginx
+    network_mode: service:nginx        # shares nginx's network namespace
     volumes:
       - $PWD/data:/data
 
@@ -51,317 +69,294 @@ services:
       - 80:80
 ```
 
-## Netshoot with Kubernetes
+### Kubernetes
 
-* if you want to debug using an [ephemeral container](https://kubernetes.io/docs/tasks/debug/debug-application/debug-running-pod/#ephemeral-container-example) in an existing pod:
+```bash
+# Ephemeral container in a running pod (non-destructive)
+kubectl debug <pod> -it --image=nicolaka/netshoot
 
-    `$ kubectl debug mypod -it --image=nicolaka/netshoot`
+# Throwaway pod
+kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot
 
-* if you want to spin up a throw away pod for debugging.
+# Throwaway pod on the host's network namespace
+kubectl run tmp-shell --rm -i --tty \
+  --overrides='{"spec": {"hostNetwork": true}}' \
+  --image nicolaka/netshoot
 
-    `$ kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot`
+# Sidecar in a Deployment — see configs/netshoot-sidecar.yaml
+kubectl apply -f configs/netshoot-sidecar.yaml
+kubectl exec -it <pod> -c netshoot -- zsh
+```
 
-* if you want to spin up a container on the host's network namespace.
+#### kubectl plugin
 
-    `$ kubectl run tmp-shell --rm -i --tty --overrides='{"spec": {"hostNetwork": true}}'  --image nicolaka/netshoot`
+The [kubectl-netshoot plugin](https://github.com/nilic/kubectl-netshoot) wraps the above into ergonomic subcommands:
 
-* if you want to use netshoot as a sidecar container to troubleshoot your application container
- ```yaml
-# netshoot-sidecar.yaml
+```bash
+kubectl netshoot run tmp-shell          # throwaway pod
+kubectl netshoot debug my-pod           # ephemeral container
+kubectl netshoot debug node/my-node     # node debug session
+```
+
 ---
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx-netshoot
-  labels:
-    app: nginx-netshoot
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx-netshoot
-  template:
-    metadata:
-      labels:
-        app: nginx-netshoot
-    spec:
-      containers:
-        - name: nginx
-          image: nginx:1.14.2
-          ports:
-            - containerPort: 80
-        - name: netshoot
-          image: nicolaka/netshoot
-          command: ["/bin/bash"]
-          args: ["-c", "while true; do ping localhost; sleep 60;done"]
- ```
 
- ```bash
-$ kubectl apply -f netshoot-sidecar.yaml
-deployment.apps/nginx-netshoot created
+## Troubleshooting Scenarios
 
-$ kubectl get pod
-NAME                              READY   STATUS    RESTARTS   AGE
-nginx-netshoot-7f9c6957f8-kr8q6   2/2     Running   0          4m27s
+### DNS resolution failures
 
-$ kubectl exec -it nginx-netshoot-7f9c6957f8-kr8q6 -c netshoot -- /bin/zsh
-                    dP            dP                           dP
-                    88            88                           88
-88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
-88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
-88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
-dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
+_Pod can't reach a service by name, or DNS lookups are slow/timing out._
 
-Welcome to Netshoot! (github.com/nicolaka/netshoot)
+```bash
+# 1. Check what DNS server the container is using
+cat /etc/resolv.conf
 
-nginx-netshoot-7f9c6957f8-kr8q6 $ 
- ```
+# 2. Resolve a Kubernetes service name
+drill kubernetes.default.svc.cluster.local
 
-## The netshoot kubectl plugin
+# 3. Query the cluster DNS directly (bypass resolv.conf)
+drill @10.96.0.10 kubernetes.default.svc.cluster.local
 
-To easily troubleshoot networking issues in your k8s environment, you can leverage the [Netshoot Kubectl Plugin](https://github.com/nilic/kubectl-netshoot) (shout out to Nebojsa Ilic for creating it!). Using this kubectl plugin, you can easily create ephemeral `netshoot` containers to troubleshoot existing pods, k8s controller or worker nodes. To install the plugin, follow [these steps](https://github.com/nilic/kubectl-netshoot#installation).
+# 4. Capture DNS traffic to see what's actually going over the wire
+tcpdump -i eth0 -n port 53
 
-Sample Usage:
-
-```
-# spin up a throwaway pod for troubleshooting
-kubectl netshoot run tmp-shell
-
-# debug using an ephemeral container in an existing pod
-kubectl netshoot debug my-existing-pod
-
-# create a debug session on a node
-kubectl netshoot debug node/my-node
+# 5. Check for NXDOMAIN vs timeout — different root causes
+drill -V 5 my-service.my-namespace.svc.cluster.local
 ```
 
+---
 
+### Latency, packet loss, and throughput
 
-**Network Problems** 
+_Intermittent timeouts, high p99, or slow transfers between pods or nodes._
 
-Many network issues could result in application performance degradation. Some of those issues could be related to the underlying networking infrastructure(underlay). Others could be related to misconfiguration at the host or Docker level. Let's take a look at common networking issues:
+```bash
+# Visual traceroute with latency per hop
+mtr --report --report-cycles 10 <destination>
 
-* latency
-* routing 
-* DNS resolution
-* firewall 
-* incomplete ARPs
+# Or use trippy for an interactive TUI traceroute
+trip <destination>
 
-To troubleshoot these issues, `netshoot` includes a set of powerful tools as recommended by this diagram. 
+# Measure raw TCP throughput between two pods:
+# On pod A (server):
+iperf3 -s
 
-![](http://www.brendangregg.com/Perf/linux_observability_tools.png)
+# On pod B (client):
+iperf3 -c <pod-A-ip> -t 30
 
-
-**Included Packages:** The following packages and binaries are included in `netshoot`:
-
-    apache2-utils \
-    bash \
-    bind-tools \
-    bird \
-    bridge-utils \
-    busybox-extras \
-    conntrack-tools \
-    curl \
-    dhcping \
-    drill \
-    ethtool \
-    file \
-    fping \
-    iftop \
-    iperf \
-    iperf3 \
-    iproute2 \
-    ipset \
-    iptables \
-    iptraf-ng \
-    iputils \
-    ipvsadm \
-    httpie \
-    jq \
-    libc6-compat \
-    liboping \
-    ltrace \
-    mtr \
-    net-snmp-tools \
-    netcat-openbsd \
-    nftables \
-    ngrep \
-    nmap \
-    nmap-nping \
-    nmap-scripts \
-    openssl \
-    py3-pip \
-    py3-setuptools \
-    scapy \
-    socat \
-    speedtest-cli \
-    openssh \
-    oh-my-zsh \
-    strace \
-    tcpdump \
-    tcptraceroute \
-    trippy \
-    tshark \
-    util-linux \
-    vim \
-    git \
-    zsh \
-    websocat \
-    swaks \
-    perl-crypt-ssleay \
-    perl-net-ssleay
-
-Additionally, the following binaries are included:
-
-    ctop
-    calicoctl
-    termshark
-    grpcurl
-    fortio
-
-## **Sample Use-cases**
-
-### iperf
-
-Purpose: test networking performance between two containers/hosts.
-
-Example:
-
-```
-$ docker network create -d bridge perf-test
-$ docker run -d --rm --net perf-test --name perf-test-a nicolaka/netshoot iperf -s -p 9999
-$ docker run -it --rm --net perf-test --name perf-test-b nicolaka/netshoot iperf -c perf-test-a -p 9999
+# Measure UDP throughput and jitter
+iperf3 -c <pod-A-ip> -u -b 1G
 ```
 
-### tcpdump
+---
 
-**tcpdump** is a powerful and common packet analyzer that runs under the command line. It allows the user to display TCP/IP and other packets being transmitted or received over an attached network interface.
+### Service reachability and firewall rules
 
-```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot
-/ # tcpdump -i eth0 port 9999 -c 1 -Xvv
-```
+_Can pod A reach pod B on port X? Is something blocking traffic?_
 
-### netstat
+```bash
+# Quick TCP connectivity check
+nc -vz <host> <port>
 
-Purpose: `netstat` is a useful tool for checking your network configuration and activity.
+# Scan a port range across a host
+nmap -p 8080-8090 <host>
 
-```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot
-/ # netstat -tulpn
-```
+# Trace the full TCP path to a port (combines traceroute + TCP)
+tcptraceroute <host> <port>
 
-### nmap
+# Send a single TCP/UDP packet with custom payload
+nping --tcp -p 443 <host>
 
-`nmap` ("Network Mapper") is an open source tool for network exploration and security auditing. It is very useful for scanning to see which ports are open between a given set of hosts.
-
-```
-$ docker run -it --privileged nicolaka/netshoot nmap -p 12376-12390 -dd 172.31.24.25
+# Check active connections and listening ports
+ss -tulnp
 ```
 
-### iftop
+---
 
-Purpose: iftop does for network usage what top does for CPU usage. It listens to network traffic on a named interface and displays a table of current bandwidth usage by pairs of hosts.
+### Packet capture and deep inspection
 
-```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot iftop -i eth0
-```
+_Need to see the actual bytes — wrong headers, unexpected resets, TLS issues._
 
-### drill
+```bash
+# Capture traffic on eth0 to a file
+tcpdump -i eth0 -w /tmp/capture.pcap
 
-Purpose: drill is a tool to designed to get all sorts of information out of the DNS.
+# Live capture filtered by host and port
+tcpdump -i eth0 -nn host <ip> and port 80
 
-```
-$ docker run -it --net container:perf-test-a nicolaka/netshoot drill -V 5 perf-test-b
-```
+# Grep for a string in live traffic (e.g. HTTP Host headers)
+ngrep -q -W byline "Host:" port 80
 
-### netcat
+# Interactive TUI for live capture or reading a pcap
+termshark -i eth0
+termshark -r /tmp/capture.pcap
 
-Purpose: a simple Unix utility that reads and writes data across network connections, using the TCP or UDP protocol. It's useful for testing and troubleshooting TCP/UDP connections. `netcat` can be used to detect if there's a firewall rule blocking certain ports.
-
-```
-$ docker network create -d bridge my-br
-$ docker run -d --rm --net my-br --name service-a nicolaka/netshoot nc -l 8080
-$ docker run -it --rm --net my-br --name service-b nicolaka/netshoot nc -vz service-a 8080
+# Full protocol dissection with tshark
+tshark -i eth0 -Y "http.request" -T fields -e http.host -e http.request.uri
 ```
 
-### iproute2
+---
 
-Purpose: a collection of utilities for controlling TCP / IP networking and traffic control in Linux.
+### gRPC and HTTP load testing
 
-```
-$ docker run -it --net host nicolaka/netshoot
-/ # ip route show
-/ # ip neigh show
-```
+_Validate a gRPC endpoint, hammer an HTTP service, check TLS._
 
-### nsenter
+```bash
+# List gRPC services on a server
+grpcurl <host>:<port> list
 
-Purpose: `nsenter` is a powerful tool allowing you to enter into any namespaces. `nsenter` is available inside `netshoot` but requires `netshoot` to be run as a privileged container. Additionally, you may want to mount the `/var/run/docker/netns` directory to be able to enter any network namespace including bridge networks.
+# Call a gRPC method
+grpcurl -d '{"key":"value"}' <host>:<port> my.Service/Method
 
-```
-$ docker run -it --rm -v /var/run/docker/netns:/var/run/docker/netns --privileged=true nicolaka/netshoot
-/ # cd /var/run/docker/netns/
-/var/run/docker/netns # ls
-/ # nsenter --net=/var/run/docker/netns/<namespace> sh
-```
+# Make an HTTP request with verbose output
+http GET https://<host>/api/v1/items
 
-### CTOP
+# Load test: 100 QPS for 30s
+fortio load -qps 100 -t 30s http://<host>/api/v1/items
 
-ctop is a free open source, simple and cross-platform top-like command-line tool for monitoring container metrics in real-time. It allows you to get an overview of metrics concerning CPU, memory, network, I/O for multiple containers and also supports inspection of a specific container.
-
-```
-$ docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock nicolaka/netshoot ctop
+# Check TLS certificate details
+openssl s_client -connect <host>:443 </dev/null | openssl x509 -noout -text
 ```
 
-### Termshark
+---
 
-Termshark is a terminal user-interface for tshark. It allows user to read pcap files or sniff live interfaces with Wireshark's display filters.
+### Routing and ARP
 
+_Wrong route selected, ARP table stale, traffic going out the wrong interface._
+
+```bash
+# Show routing table
+ip route show
+
+# Show ARP/neighbour table
+ip neigh show
+
+# Trace which route a packet would take
+ip route get <destination-ip>
+
+# Show interface stats (drops, errors)
+ip -s link show eth0
+
+# Test ICMP reachability to multiple hosts at once
+fping -a -g 10.0.0.1 10.0.0.254
 ```
-$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -it nicolaka/netshoot termshark -i eth0 icmp
-$ docker run --rm --cap-add=NET_ADMIN --cap-add=NET_RAW -v /tmp/ipv4frags.pcap:/tmp/ipv4frags.pcap -it nicolaka/netshoot termshark -r /tmp/ipv4frags.pcap
-```
 
-### Swaks
+---
 
-Swaks (Swiss Army Knife for SMTP) is a featureful, flexible, scriptable, transaction-oriented SMTP test tool. It is free to use and licensed under the GNU GPLv2.
+### SMTP testing
 
-```
-swaks --to user@example.com \
-  --from fred@example.com --h-From: '"Fred Example" <fred@example.com>' \
-  --auth CRAM-MD5 --auth-user me@example.com \
-  --header-X-Test "test email" \
+_Validate mail relay, test TLS, confirm AUTH works._
+
+```bash
+swaks \
+  --to user@example.com \
+  --from probe@example.com \
+  --server mail.example.com:587 \
   --tls \
-  --data "Example body"
+  --auth PLAIN \
+  --auth-user user@example.com \
+  --auth-password s3cr3t \
+  --header "Subject: netshoot probe" \
+  --body "SMTP connectivity test"
 ```
 
-### Grpcurl
+---
 
-grpcurl is a command-line tool that lets you interact with gRPC servers. It's basically curl for gRPC servers.
+### Container and network performance overview
 
-```
-grpcurl grpc.server.com:443 my.custom.server.Service/Method
-# no TLS
-grpcurl -plaintext grpc.server.com:80 my.custom.server.Service/Method
-```
-
-### Fortio
-
-Fortio is a fast, small, reusable, embeddable go library as well as a command line tool and server process, the server includes a simple web UI and REST API to trigger run and see graphical representation of the results.
-
-```
-$ fortio load http://www.google.com
+```bash
+# Top-like view of container CPU, memory, net, and I/O
+docker run -it --rm \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  nicolaka/netshoot ctop
 ```
 
-## Contribution
+---
 
-Feel free to contribute networking troubleshooting tools and use-cases by opening PRs. If you would like to add any package, please follow these steps:
+## Included Tools
 
-* In the PR, please include some rationale as to why this tool is useful to be included in netshoot. 
-     > Note: If the functionality of the tool is already addressed by an existing tool, I might not accept the PR
-* Change the Dockerfile to include the new package/tool
-* If you're building the tool from source, make sure you leverage the multi-stage build process and update the `build/fetch_binaries.sh` script 
-* Update the README's list of included packages AND include a section on how to use the tool
-* If the tool you're adding supports multi-platform, please make sure you highlight that.
+### Network analysis
+| Tool | Purpose |
+|---|---|
+| `tcpdump` | Packet capture |
+| `tshark` | Protocol dissection |
+| `termshark` | TUI for tshark / pcap files |
+| `ngrep` | Grep over live network traffic |
+| `wireshark` (tshark) | Deep protocol analysis |
+| `iftop` | Bandwidth by host pair |
+| `iptraf-ng` | Real-time network stats |
+| `netcat` | TCP/UDP read/write |
+| `socat` | Multipurpose relay |
+| `conntrack-tools` | Connection tracking |
+| `nftables` | nftables ruleset inspection |
 
+### DNS
+| Tool | Purpose |
+|---|---|
+| `drill` | DNS query tool |
+| `bind-tools` | dig, nslookup, host |
 
+### Performance
+| Tool | Purpose |
+|---|---|
+| `iperf` / `iperf3` | TCP/UDP throughput |
+| `mtr` | Traceroute + ping combined |
+| `trippy` | TUI traceroute |
+| `fping` | Parallel ICMP probing |
+| `iputils` | ping, arping |
+| `speedtest-cli` | Internet speed test |
+| `ethtool` | NIC settings and stats |
+
+### Security & scanning
+| Tool | Purpose |
+|---|---|
+| `nmap` | Port scanning |
+| `nmap-nping` | Packet crafting |
+| `openssl` | TLS inspection |
+| `scapy` | Python packet crafting |
+| `dhcping` | DHCP probe |
+
+### HTTP / gRPC / SMTP
+| Tool | Purpose |
+|---|---|
+| `httpie` | Human-friendly HTTP client |
+| `curl` | HTTP client |
+| `grpcurl` | gRPC client |
+| `fortio` | HTTP load testing |
+| `websocat` | WebSocket client |
+| `swaks` | SMTP testing |
+| `apache2-utils` | `ab` HTTP benchmarking |
+
+### Routing & interfaces
+| Tool | Purpose |
+|---|---|
+| `iproute2` | ip route, ip link, ip neigh |
+| `bridge-utils` | Bridge management |
+| `ipset` | IP set management |
+| `iptables` | Firewall rules |
+| `ipvsadm` | IPVS table inspection |
+| `tcptraceroute` | Traceroute over TCP |
+
+### Kubernetes / Calico
+| Tool | Purpose |
+|---|---|
+| `calicoctl` | Calico resource management |
+| `ctop` | Container metrics TUI |
+
+### Debug & tracing
+| Tool | Purpose |
+|---|---|
+| `strace` | Syscall tracing |
+| `ltrace` | Library call tracing |
+| `net-snmp-tools` | SNMP queries |
+| `bird` | BGP/OSPF routing daemon |
+
+---
+
+## Contributing
+
+PRs are welcome. Before opening one:
+
+- Explain why the tool isn't redundant with something already in the image
+- Update the `Dockerfile` to add the package, or add a `get_<tool>()` function to `build/fetch_binaries.sh` for pre-built binaries
+- Add the tool to the **Included Tools** table and a **Troubleshooting Scenarios** block with a real workflow
+- For multi-platform tools, confirm `linux/amd64` and `linux/arm64` both work
