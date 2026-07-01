@@ -91,7 +91,7 @@ COPY --from=fetcher /tmp/fortio /usr/local/bin/fortio
 # Setting User and Home
 USER root
 WORKDIR /root
-ENV HOSTNAME netshoot
+ENV HOSTNAME=netshoot
 
 # ZSH Themes
 RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
