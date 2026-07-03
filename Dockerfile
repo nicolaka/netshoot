@@ -23,6 +23,7 @@ RUN set -ex \
     bridge-utils \
     busybox-extras \
     conntrack-tools \
+    coreutils \
     curl \
     dhcping \
     drill \
