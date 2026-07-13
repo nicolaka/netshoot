@@ -20,6 +20,7 @@ RUN set -ex \
     bash \
     bind-tools \
     bird \
+    bpftool \
     bridge-utils \
     busybox-extras \
     conntrack-tools \
