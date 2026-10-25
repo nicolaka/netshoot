@@ -59,6 +59,7 @@ RUN git clone --depth 1 -b "v${TERMSHARK_VERSION}" https://github.com/gcla/terms
  && cd /src/termshark \
  && go get golang.org/x/crypto@latest golang.org/x/net@latest golang.org/x/sys@latest golang.org/x/text@latest \
       golang.org/x/image@latest github.com/sirupsen/logrus@latest gopkg.in/yaml.v3@latest github.com/antchfx/xpath@latest \
+      github.com/klauspost/compress@latest \
  && go mod tidy \
  && go build -o /out/termshark ./cmd/termshark
 
