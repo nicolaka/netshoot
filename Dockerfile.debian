@@ -34,10 +34,10 @@ RUN git clone --depth 1 -b "v${FORTIO_VERSION}" https://github.com/fortio/fortio
  && git tag -f "v${FORTIO_VERSION}" \
  && go build -o /out/fortio .
 
-# grpcurl's release pins golang.org/x/net and grpc versions with known CVEs; bump them.
+# grpcurl's release pins golang.org/x/net, grpc and go-jose versions with known CVEs; bump them.
 RUN git clone --depth 1 -b "v${GRPCURL_VERSION}" https://github.com/fullstorydev/grpcurl /src/grpcurl \
  && cd /src/grpcurl \
- && go get golang.org/x/net@latest google.golang.org/grpc@latest \
+ && go get golang.org/x/net@latest google.golang.org/grpc@latest github.com/go-jose/go-jose/v4@latest \
  && go mod tidy \
  && go build -ldflags "-X main.version=v${GRPCURL_VERSION}" -o /out/grpcurl ./cmd/grpcurl
 
