@@ -1,7 +1,7 @@
 # Debian variant of netshoot.
 #
 # Two differences from the Alpine image, both about CVE hygiene:
-#   * The pre-built tools (ctop, calicoctl, termshark, grpcurl, fortio) are compiled
+#   * The pre-built tools (ctop, termshark, grpcurl, fortio) are compiled
 #     from source with the current Go toolchain instead of downloading their release
 #     binaries. The release binaries were built years ago (ctop with Go 1.18, 2022)
 #     and carry the vulnerable Go stdlib/x-libraries of their day, which is where
@@ -12,14 +12,13 @@
 # zsh/oh-my-zsh/powerlevel10k environment, same MOTD, root user, CMD zsh.
 
 ARG CTOP_VERSION=0.7.7
-ARG CALICOCTL_VERSION=3.33.0
 ARG TERMSHARK_VERSION=2.4.0
 ARG GRPCURL_VERSION=1.9.4
 ARG FORTIO_VERSION=1.76.0
 ARG WEBSOCAT_VERSION=1.14.1
 
 FROM golang:trixie AS builder
-ARG CTOP_VERSION CALICOCTL_VERSION TERMSHARK_VERSION GRPCURL_VERSION FORTIO_VERSION WEBSOCAT_VERSION
+ARG CTOP_VERSION TERMSHARK_VERSION GRPCURL_VERSION FORTIO_VERSION WEBSOCAT_VERSION
 ARG TARGETARCH
 ENV GOFLAGS=-trimpath CGO_ENABLED=0 GOBIN=/out
 
@@ -62,17 +61,6 @@ RUN git clone --depth 1 -b "v${TERMSHARK_VERSION}" https://github.com/gcla/terms
       github.com/klauspost/compress@latest \
  && go mod tidy \
  && go build -o /out/termshark ./cmd/termshark
-
-# calico is a monorepo without /v3 module paths, so it is built from a checkout; its
-# x/crypto, grpc and etcd client pins carry known CVEs and are bumped first.
-RUN git clone --depth 1 -b "v${CALICOCTL_VERSION}" https://github.com/projectcalico/calico /src/calico \
- && cd /src/calico \
- && go get golang.org/x/crypto@latest golang.org/x/net@latest google.golang.org/grpc@latest \
-      go.etcd.io/etcd/client/pkg/v3@latest go.etcd.io/etcd/client/v3@latest go.etcd.io/etcd/api/v3@latest \
- && cd /src/calico/calicoctl \
- && go build -ldflags "-X github.com/projectcalico/calico/pkg/buildinfo.Version=v${CALICOCTL_VERSION} \
-      -X github.com/projectcalico/calico/pkg/buildinfo.GitRevision=v${CALICOCTL_VERSION}" \
-      -o /out/calicoctl ./calicoctl
 
 # websocat is Rust; its static musl release binary is current and scanner-clean.
 RUN case "${TARGETARCH}" in \
@@ -156,7 +144,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /out/ctop      /usr/local/bin/ctop
-COPY --from=builder /out/calicoctl /usr/local/bin/calicoctl
 COPY --from=builder /out/termshark /usr/local/bin/termshark
 COPY --from=builder /out/grpcurl   /usr/local/bin/grpcurl
 COPY --from=builder /out/fortio    /usr/local/bin/fortio
@@ -168,11 +155,13 @@ WORKDIR /root
 ENV HOSTNAME=netshoot
 
 # ZSH Themes (same setup as the Alpine image)
+ARG VERSION=dev
 RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-COPY zshrc .zshrc
-COPY motd motd
+COPY shell/zshrc .zshrc
+COPY shell/motd motd.template
+RUN sed "s/__VERSION__/${VERSION}/g" motd.template > motd && rm motd.template
 
 # Fix permissions for OpenShift and tshark
 RUN chmod -R g=u /root

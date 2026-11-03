@@ -3,71 +3,96 @@ name: release-buildx
 on:
   push:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - "v*"
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
 
 jobs:
   buildx:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v7
-        with:
-          ref: ${{ github.ref }}
-      -
-        name: Set up QEMU
+
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64,amd64
-      -
-        name: Set up Docker Buildx
-        id: buildx
+
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      -
-        name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
-      - name: Set Release Tag Env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
-      - 
-        name: docker hub login
-        env:
-          DOCKER_USER: ${{secrets.DOCKER_USER}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-        run: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
-      - 
-        name: docker ghcr login
-        env:
-          GHCR_USER: ${{secrets.GHCR_USER}}
-          GHCR_TOKEN: ${{secrets.GHCR_TOKEN}}
-        run: |
-            docker login ghcr.io -u $GHCR_USER -p $GHCR_TOKEN
-      -
-        name: Run Buildx
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=true" \
-            --file ./Dockerfile \
-            --tag $GITHUB_REPOSITORY:$GITHUB_SHA \
-            --tag $GITHUB_REPOSITORY:$RELEASE_VERSION \
-            --tag $GITHUB_REPOSITORY:latest \
-            --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA \
-            --tag ghcr.io/$GITHUB_REPOSITORY:$RELEASE_VERSION \
-            --tag ghcr.io/$GITHUB_REPOSITORY:latest . 
-      -
-        name: Run Buildx (debian variant)
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=true" \
-            --file ./Dockerfile.debian \
-            --tag $GITHUB_REPOSITORY:$GITHUB_SHA-debian \
-            --tag $GITHUB_REPOSITORY:$RELEASE_VERSION-debian \
-            --tag $GITHUB_REPOSITORY:latest-debian \
-            --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA-debian \
-            --tag ghcr.io/$GITHUB_REPOSITORY:$RELEASE_VERSION-debian \
-            --tag ghcr.io/$GITHUB_REPOSITORY:latest-debian . 
 
+      - name: Docker Hub login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-            
+      - name: GHCR login
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=${{ github.sha }}
+            type=ref,event=tag
+            type=raw,value=latest
+
+      - name: Docker metadata (debian)
+        id: meta-debian
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ github.repository }}
+            ghcr.io/${{ github.repository }}
+          flavor: |
+            latest=false
+          tags: |
+            type=raw,value=${{ github.sha }}-debian
+            type=raw,value=${{ github.ref_name }}-debian
+            type=raw,value=latest-debian
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          provenance: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+          cache-from: type=gha,scope=alpine
+          cache-to: type=gha,scope=alpine,mode=max
+
+      - name: Build and push (debian)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.debian
+          platforms: linux/amd64,linux/arm64
+          push: true
+          sbom: true
+          provenance: true
+          tags: ${{ steps.meta-debian.outputs.tags }}
+          labels: ${{ steps.meta-debian.outputs.labels }}
+          build-args: |
+            VERSION=${{ github.ref_name }}
+          cache-from: type=gha,scope=debian
+          cache-to: type=gha,scope=debian,mode=max

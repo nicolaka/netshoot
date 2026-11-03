@@ -2,41 +2,82 @@ name: test-pr-buildx
 
 on:
   pull_request:
-    branches: master
-    
+    branches:
+      - master
+
 jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build amd64 image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          load: true
+          tags: nicolaka/netshoot:ci
+          build-args: |
+            VERSION=pr-${{ github.event.pull_request.number }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test tools
+        run: docker run --rm --entrypoint netshoot-smoke nicolaka/netshoot:ci
+
+      - name: Vulnerability scan (advisory)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: nicolaka/netshoot:ci
+          format: table
+          exit-code: "0"
+          ignore-unfixed: true
+
   buildx:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v7
-      -
-        name: Set up QEMU
+
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64,amd64
-      -
-        name: Set up Docker Buildx
+
+      - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v4
-      -
-        name: Available platforms
+
+      - name: Available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
-      -
-        name: Run Buildx
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=false" \
-            --file ./Dockerfile .
-      -
-        name: Run Buildx (debian variant)
-        run: |
-          docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --output "type=image,push=false" \
-            --file ./Dockerfile.debian .
 
+      - name: Multi-arch build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            VERSION=pr-${{ github.event.pull_request.number }}
+          cache-from: type=gha,scope=alpine
+          cache-to: type=gha,scope=alpine,mode=max
 
-            
+      - name: Multi-arch build (debian)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.debian
+          platforms: linux/amd64,linux/arm64
+          push: false
+          build-args: |
+            VERSION=pr-${{ github.event.pull_request.number }}
+          cache-from: type=gha,scope=debian
+          cache-to: type=gha,scope=debian,mode=max
