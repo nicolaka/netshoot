@@ -1,13 +1,8 @@
 ## netshoot: a Docker + Kubernetes network trouble-shooting swiss-army container
 
-```
-                    dP            dP                           dP
-                    88            88                           88
-88d888b. .d8888b. d8888P .d8888b. 88d888b. .d8888b. .d8888b. d8888P
-88'  `88 88ooood8   88   Y8ooooo. 88'  `88 88'  `88 88'  `88   88
-88    88 88.  ...   88         88 88    88 88.  .88 88.  .88   88
-dP    dP `88888P'   dP   `88888P' dP    dP `88888P' `88888P'   dP
-```
+<p align="center">
+  <img src="img/netshoot.jpg" alt="netshoot" width="320">
+</p>
 
 ## Quick Start
 
@@ -342,19 +337,33 @@ docker run -it --rm \
 
 ---
 
-## Debian variant
+## Images and platforms
 
-`netshoot:<version>-debian` (and `latest-debian`) is the same toolset on Debian 13 ("trixie"), built from `Dockerfile.debian`, for environments that standardise on glibc/Debian userland. Differences:
+Each release publishes two multi-arch images, both for `linux/amd64` (x86_64) and `linux/arm64` (aarch64). They are on Docker Hub as `nicolaka/netshoot` and on GHCR as `ghcr.io/nicolaka/netshoot`. `linux/arm/v7`, 386, ppc64le, s390x, and Windows are not built.
 
-- The pre-built tools (`ctop`, `termshark`, `grpcurl`, `fortio`) are **compiled from source with the current Go toolchain** instead of downloading release binaries, and versions are pinned. The release binaries were built years ago (ctop with Go 1.18) and carry the vulnerable Go stdlib/x-libraries of their day; on both the Alpine and Debian images they are where almost all critical/high scanner findings come from. Building them from source removes those findings.
-- Tool versions follow Debian trixie instead of Alpine (e.g. nmap 7.95 vs 7.99, tshark 4.4 vs 4.6, trippy's binary is `trip`).
-- `drill` comes from `ldnsutils`, `nping` is part of Debian's `nmap`, and the image ships `openssh-client` (no sshd).
+| Image | Base | libc | Dockerfile | Tags |
+|---|---|---|---|---|
+| Alpine (default) | Alpine 3.24 | musl | `Dockerfile` | `:latest`, `:<version>`, `:<sha>` |
 
-The same from-source builder stage could be applied to the Alpine image; PRs welcome.
+```bash
+docker pull nicolaka/netshoot:latest
+```
+
+| Image | Base | libc | Dockerfile | Tags |
+|---|---|---|---|---|
+| Debian | Debian 13 (trixie-slim) | glibc | `Dockerfile.debian` | `:latest-debian`, `:<version>-debian`, `:<sha>-debian` |
+
+```bash
+docker pull nicolaka/netshoot:latest-debian
+```
+
+The Alpine image installs packages from the 3.24 `main` and `community` repositories. `trippy` and `swaks` come from a tagged `edge/testing` repo. `ctop`, `termshark`, `grpcurl`, and `fortio` are pinned GitHub release binaries.
+
+The Debian image is the same toolset built for glibc. Those four Go tools are compiled from source with the current Go toolchain instead of the old release binaries. Package names follow Debian (`drill` is in `ldnsutils`, `nping` is part of `nmap`, the image ships `openssh-client` and no sshd). The `trippy` binary is named `trip`.
 
 ## Releases and pinning
 
-Images are published to Docker Hub (`nicolaka/netshoot`) and GHCR (`ghcr.io/nicolaka/netshoot`) from `v*` git tags. `:latest` tracks the newest tag. The Debian image is published as `:<tag>-debian` and `:latest-debian`.
+Images are published when a `v*` git tag is pushed. `:latest` and `:latest-debian` track the newest tag.
 
 This is a kitchen-sink debug image. For anything beyond a throwaway session, pin a digest rather than a floating tag. See [SECURITY.md](SECURITY.md).
 
