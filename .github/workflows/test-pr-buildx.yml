@@ -40,6 +40,40 @@ jobs:
           exit-code: "0"
           ignore-unfixed: true
 
+  smoke-debian:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build amd64 image (debian)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.debian
+          platforms: linux/amd64
+          load: true
+          tags: nicolaka/netshoot:ci-debian
+          build-args: |
+            VERSION=pr-${{ github.event.pull_request.number }}
+          cache-from: type=gha,scope=smoke-debian
+          cache-to: type=gha,scope=smoke-debian,mode=max
+
+      - name: Smoke test tools (debian)
+        run: docker run --rm --entrypoint netshoot-smoke nicolaka/netshoot:ci-debian
+
+      - name: Vulnerability scan (advisory, debian)
+        continue-on-error: true
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: nicolaka/netshoot:ci-debian
+          format: table
+          exit-code: "0"
+          ignore-unfixed: true
+
   buildx:
     runs-on: ubuntu-latest
     steps:

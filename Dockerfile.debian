@@ -149,6 +149,7 @@ COPY --from=builder /out/termshark /usr/local/bin/termshark
 COPY --from=builder /out/grpcurl   /usr/local/bin/grpcurl
 COPY --from=builder /out/fortio    /usr/local/bin/fortio
 COPY --from=builder /out/websocat  /usr/local/bin/websocat
+COPY build/smoke.sh /usr/local/bin/netshoot-smoke
 
 # Setting User and Home
 USER root
@@ -173,6 +174,7 @@ RUN curl -fsSL "https://github.com/ohmyzsh/ohmyzsh/archive/${OMZ_SHA}.tar.gz" | 
  && sed "s/__VERSION__/${VERSION}/g" /root/motd.template > /root/motd \
  && rm /root/motd.template \
  && chmod -R g=u /root \
+ && chmod +x /usr/local/bin/netshoot-smoke \
  && chown root:root /usr/bin/dumpcap
 
 # Running ZSH

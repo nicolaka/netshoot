@@ -1,4 +1,4 @@
-.PHONY: build-x86 build-arm64 build-all push release smoke
+.PHONY: build-x86 build-arm64 build-all push release smoke smoke-debian
 
 IMAGENAME ?= nicolaka/netshoot
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
@@ -26,3 +26,7 @@ release:
 smoke:
 	docker build --platform linux/amd64 --build-arg VERSION=$(VERSION) -t $(IMAGENAME):$(VERSION) .
 	docker run --rm --platform linux/amd64 --entrypoint netshoot-smoke $(IMAGENAME):$(VERSION)
+
+smoke-debian:
+	docker build --platform linux/amd64 --build-arg VERSION=$(VERSION) -f Dockerfile.debian -t $(IMAGENAME):$(VERSION)-debian .
+	docker run --rm --platform linux/amd64 --entrypoint netshoot-smoke $(IMAGENAME):$(VERSION)-debian
