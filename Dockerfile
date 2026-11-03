@@ -5,7 +5,7 @@ RUN apt-get update \
 COPY build/fetch_binaries.sh /tmp/fetch_binaries.sh
 RUN chmod +x /tmp/fetch_binaries.sh && /tmp/fetch_binaries.sh
 
-FROM alpine:3.24.1
+FROM alpine:3.24.3
 
 ARG VERSION=dev
 ARG OMZ_SHA=b509b1c6ed0c1ba37de12cbd37f30b2b2f61193a
