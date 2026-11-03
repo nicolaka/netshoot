@@ -33,7 +33,7 @@ jobs:
 
       - name: Vulnerability scan (advisory)
         continue-on-error: true
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.36.0
         with:
           image-ref: nicolaka/netshoot:ci
           format: table
