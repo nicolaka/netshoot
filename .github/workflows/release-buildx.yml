@@ -66,7 +66,7 @@ jobs:
             type=raw,value=latest-debian
 
       - name: Build and push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
@@ -82,7 +82,7 @@ jobs:
           cache-to: type=gha,scope=alpine,mode=max
 
       - name: Build and push (debian)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile.debian
