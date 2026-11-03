@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this project is
 
-`netshoot` is a Docker image packed with networking troubleshooting tools for debugging Docker and Kubernetes network issues. The image is built on Alpine Linux and ships ~40 apk packages plus 5 pre-built binaries fetched at build time (ctop, calicoctl, termshark, grpcurl, fortio).
+`netshoot` is a Docker image packed with networking troubleshooting tools for debugging Docker and Kubernetes network issues. The image is built on Alpine Linux 3.24 and ships apk packages plus 4 pre-built binaries fetched at build time (ctop, termshark, grpcurl, fortio).
 
 ## Build commands
 
@@ -15,39 +15,40 @@ make build-x86
 # Build for arm64 only
 make build-arm64
 
-# Build multi-arch (amd64 + arm64) without pushing
+# Build multi-arch (amd64 + arm64) without pushing — default target
 make build-all
 
-# Build and push to Docker Hub (requires login)
-make all
+# Build amd64 and verify advertised tools exist
+make smoke
+
+# Push a locally tagged image
+make push
+
+# Multi-arch build and push
+make release
 ```
 
-Direct `docker buildx` invocation for multi-arch local test (mirrors CI):
-```bash
-docker buildx build --platform linux/amd64,linux/arm64 --output "type=image,push=false" --file ./Dockerfile .
-```
+`VERSION` comes from `git describe --tags --always --dirty` and is passed as a build-arg into the image labels and motd.
 
-There are no unit tests. CI (`test-pr-buildx.yml`) validates PRs by doing a multi-arch build without pushing. Releases are triggered by pushing a `v*` tag and are published to both Docker Hub (`nicolaka/netshoot`) and GHCR (`ghcr.io/nicolaka/netshoot`).
+There are no unit tests. CI (`test-pr-buildx.yml`) builds amd64, runs `build/smoke.sh`, then does a multi-arch build without pushing. Releases are triggered by pushing a `v*` tag and are published to both Docker Hub (`nicolaka/netshoot`) and GHCR (`ghcr.io/nicolaka/netshoot`).
 
 ## Architecture
 
 The Dockerfile uses a two-stage build:
 
-1. **`fetcher` stage** (debian:stable-slim) — runs `build/fetch_binaries.sh`, which queries GitHub Releases API for the latest versions of ctop, calicoctl, termshark, grpcurl, and fortio, then downloads and unpacks them into `/tmp/`.
+1. **`fetcher` stage** (debian:stable-slim) — runs `build/fetch_binaries.sh`, which downloads **pinned** versions of ctop, termshark, grpcurl, and fortio and verifies SHA256 checksums into `/tmp/`.
 
-2. **Final stage** (alpine:3.x) — installs all apk packages, copies binaries from the fetcher stage, clones oh-my-zsh + powerlevel10k, and copies `zshrc` and `motd` into the image. Default CMD is `zsh`.
+2. **Final stage** (alpine:3.24) — installs apk packages from stable `main`/`community`, plus `trippy` and `swaks` from tagged `edge/testing`. It copies binaries from the fetcher stage, unpacks pinned oh-my-zsh / zsh-autosuggestions / powerlevel10k tarballs, and copies `shell/zshrc` and `shell/motd` into the image. Default CMD is `zsh`.
 
-`build/fetch_binaries.sh` auto-detects `x86_64`→`amd64` and `aarch64`→`arm64` to download the right binary for each tool. Add new binary-fetched tools there by following the pattern of the existing `get_*` functions.
+`build/fetch_binaries.sh` maps `x86_64`→`amd64` and `aarch64`→`arm64`. Add new binary-fetched tools there by following the existing `get_*` functions (pinned version + checksum per arch).
 
 ## Adding a new tool
 
-- **apk package**: add it alphabetically to the `apk add --no-cache` block in `Dockerfile`.
-- **pre-built binary**: add a `get_<tool>()` function in `build/fetch_binaries.sh` and call it at the bottom of the script; then add a `COPY --from=fetcher` line in the Dockerfile's final stage.
-- Update the README's "Included Packages" list and add a usage section.
-- PRs should justify why the tool is not redundant with existing tools in the image.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Kubernetes deployment configs
+## Kubernetes / Compose examples
 
 `configs/` contains ready-to-use manifests:
-- `netshoot-sidecar.yaml` — deploys netshoot as a sidecar alongside nginx
-- `netshoot-calico.yaml` — Calico-specific deployment example
+
+- `netshoot-sidecar.yaml` — netshoot as a sidecar alongside nginx
+- `netshoot-compose.yaml` — capture traffic from a Compose service

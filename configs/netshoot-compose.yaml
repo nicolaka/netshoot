@@ -1,0 +1,14 @@
+services:
+  netshoot:
+    image: nicolaka/netshoot
+    depends_on:
+      - nginx
+    command: tcpdump -i eth0 -w /data/nginx.pcap
+    network_mode: service:nginx
+    volumes:
+      - ./data:/data
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"

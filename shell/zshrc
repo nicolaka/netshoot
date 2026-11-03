@@ -1,0 +1,21 @@
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_DISABLE_COMPFIX="true"
+DISABLE_AUTO_UPDATE="true"
+
+plugins=(
+  git
+  zsh-autosuggestions
+)
+
+source "$ZSH/oh-my-zsh.sh"
+
+if [[ -f "$HOME/motd" ]]; then
+  cat "$HOME/motd"
+fi
+
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(host dir)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=()
+POWERLEVEL9K_PROMPT_ON_NEWLINE=false
+POWERLEVEL9K_PROMPT_ADD_NEWLINE=true

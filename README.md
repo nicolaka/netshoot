@@ -20,6 +20,9 @@ docker run -it --net host nicolaka/netshoot
 
 # Ephemeral debug container in Kubernetes
 kubectl debug <pod> -it --image=nicolaka/netshoot
+
+# Prefer a digest in production debug sessions
+docker run -it --rm nicolaka/netshoot@sha256:<digest>
 ```
 
 ## Why netshoot
@@ -51,22 +54,10 @@ docker run -it --rm \
 
 ### Docker Compose
 
-```yaml
-version: "3.6"
-services:
-  netshoot:
-    image: nicolaka/netshoot
-    depends_on:
-      - nginx
-    command: tcpdump -i eth0 -w /data/nginx.pcap
-    network_mode: service:nginx        # shares nginx's network namespace
-    volumes:
-      - $PWD/data:/data
+See [`configs/netshoot-compose.yaml`](configs/netshoot-compose.yaml) for a Compose file that shares another service's network namespace and writes a pcap:
 
-  nginx:
-    image: nginx:alpine
-    ports:
-      - 80:80
+```bash
+docker compose -f configs/netshoot-compose.yaml up
 ```
 
 ### Kubernetes
@@ -83,7 +74,7 @@ kubectl run tmp-shell --rm -i --tty \
   --overrides='{"spec": {"hostNetwork": true}}' \
   --image nicolaka/netshoot
 
-# Sidecar in a Deployment — see configs/netshoot-sidecar.yaml
+# Sidecar in a Deployment
 kubectl apply -f configs/netshoot-sidecar.yaml
 kubectl exec -it <pod> -c netshoot -- zsh
 ```
@@ -336,10 +327,9 @@ docker run -it --rm \
 | `ipvsadm` | IPVS table inspection |
 | `tcptraceroute` | Traceroute over TCP |
 
-### Kubernetes / Calico
+### Containers
 | Tool | Purpose |
 |---|---|
-| `calicoctl` | Calico resource management |
 | `ctop` | Container metrics TUI |
 
 ### Debug & tracing
@@ -354,26 +344,20 @@ docker run -it --rm \
 
 ## Debian variant
 
-`netshoot:<version>-debian` (and `latest-debian`) is the same toolset on Debian 13 ("trixie"), built
-from `Dockerfile.debian`, for environments that standardise on glibc/Debian userland. Differences:
+`netshoot:<version>-debian` (and `latest-debian`) is the same toolset on Debian 13 ("trixie"), built from `Dockerfile.debian`, for environments that standardise on glibc/Debian userland. Differences:
 
-- The pre-built tools (`ctop`, `calicoctl`, `termshark`, `grpcurl`, `fortio`) are **compiled from
-  source with the current Go toolchain** instead of downloading release binaries, and versions are
-  pinned. The release binaries were built years ago (ctop with Go 1.18) and carry the vulnerable Go
-  stdlib/x-libraries of their day; on both the Alpine and Debian images they are where almost all
-  critical/high scanner findings come from. Building them from source removes those findings.
-- Tool versions follow Debian trixie instead of Alpine edge (e.g. nmap 7.95 vs 7.99, tshark 4.4 vs
-  4.6, trippy's binary is `trip`).
-- `drill` comes from `ldnsutils`, `nping` is part of Debian's `nmap`, and the image ships
-  `openssh-client` (no sshd).
+- The pre-built tools (`ctop`, `termshark`, `grpcurl`, `fortio`) are **compiled from source with the current Go toolchain** instead of downloading release binaries, and versions are pinned. The release binaries were built years ago (ctop with Go 1.18) and carry the vulnerable Go stdlib/x-libraries of their day; on both the Alpine and Debian images they are where almost all critical/high scanner findings come from. Building them from source removes those findings.
+- Tool versions follow Debian trixie instead of Alpine (e.g. nmap 7.95 vs 7.99, tshark 4.4 vs 4.6, trippy's binary is `trip`).
+- `drill` comes from `ldnsutils`, `nping` is part of Debian's `nmap`, and the image ships `openssh-client` (no sshd).
 
 The same from-source builder stage could be applied to the Alpine image; PRs welcome.
 
+## Releases and pinning
+
+Images are published to Docker Hub (`nicolaka/netshoot`) and GHCR (`ghcr.io/nicolaka/netshoot`) from `v*` git tags. `:latest` tracks the newest tag. The Debian image is published as `:<tag>-debian` and `:latest-debian`.
+
+This is a kitchen-sink debug image. For anything beyond a throwaway session, pin a digest rather than a floating tag. See [SECURITY.md](SECURITY.md).
+
 ## Contributing
 
-PRs are welcome. Before opening one:
-
-- Explain why the tool isn't redundant with something already in the image
-- Update the `Dockerfile` to add the package, or add a `get_<tool>()` function to `build/fetch_binaries.sh` for pre-built binaries
-- Add the tool to the **Included Tools** table and a **Troubleshooting Scenarios** block with a real workflow
-- For multi-platform tools, confirm `linux/amd64` and `linux/arm64` both work
+See [CONTRIBUTING.md](CONTRIBUTING.md).

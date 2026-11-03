@@ -1,0 +1,11 @@
+.git
+.github
+.DS_Store
+*.md
+img
+configs
+LICENSE
+Makefile
+CLAUDE.md
+CONTRIBUTING.md
+SECURITY.md
