@@ -55,6 +55,19 @@ jobs:
             --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA \
             --tag ghcr.io/$GITHUB_REPOSITORY:$RELEASE_VERSION \
             --tag ghcr.io/$GITHUB_REPOSITORY:latest . 
+      -
+        name: Run Buildx (debian variant)
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --output "type=image,push=true" \
+            --file ./Dockerfile.debian \
+            --tag $GITHUB_REPOSITORY:$GITHUB_SHA-debian \
+            --tag $GITHUB_REPOSITORY:$RELEASE_VERSION-debian \
+            --tag $GITHUB_REPOSITORY:latest-debian \
+            --tag ghcr.io/$GITHUB_REPOSITORY:$GITHUB_SHA-debian \
+            --tag ghcr.io/$GITHUB_REPOSITORY:$RELEASE_VERSION-debian \
+            --tag ghcr.io/$GITHUB_REPOSITORY:latest-debian . 
 
 
             

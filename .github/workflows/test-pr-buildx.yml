@@ -30,6 +30,13 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             --output "type=image,push=false" \
             --file ./Dockerfile .
+      -
+        name: Run Buildx (debian variant)
+        run: |
+          docker buildx build \
+            --platform linux/amd64,linux/arm64 \
+            --output "type=image,push=false" \
+            --file ./Dockerfile.debian .
 
 
             

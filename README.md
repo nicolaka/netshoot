@@ -352,6 +352,23 @@ docker run -it --rm \
 
 ---
 
+## Debian variant
+
+`netshoot:<version>-debian` (and `latest-debian`) is the same toolset on Debian 13 ("trixie"), built
+from `Dockerfile.debian`, for environments that standardise on glibc/Debian userland. Differences:
+
+- The pre-built tools (`ctop`, `calicoctl`, `termshark`, `grpcurl`, `fortio`) are **compiled from
+  source with the current Go toolchain** instead of downloading release binaries, and versions are
+  pinned. The release binaries were built years ago (ctop with Go 1.18) and carry the vulnerable Go
+  stdlib/x-libraries of their day; on both the Alpine and Debian images they are where almost all
+  critical/high scanner findings come from. Building them from source removes those findings.
+- Tool versions follow Debian trixie instead of Alpine edge (e.g. nmap 7.95 vs 7.99, tshark 4.4 vs
+  4.6, trippy's binary is `trip`).
+- `drill` comes from `ldnsutils`, `nping` is part of Debian's `nmap`, and the image ships
+  `openssh-client` (no sshd).
+
+The same from-source builder stage could be applied to the Alpine image; PRs welcome.
+
 ## Contributing
 
 PRs are welcome. Before opening one:

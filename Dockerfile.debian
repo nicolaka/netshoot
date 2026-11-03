@@ -1,0 +1,182 @@
+# Debian variant of netshoot.
+#
+# Two differences from the Alpine image, both about CVE hygiene:
+#   * The pre-built tools (ctop, calicoctl, termshark, grpcurl, fortio) are compiled
+#     from source with the current Go toolchain instead of downloading their release
+#     binaries. The release binaries were built years ago (ctop with Go 1.18, 2022)
+#     and carry the vulnerable Go stdlib/x-libraries of their day, which is where
+#     almost all critical/high scanner findings on this image come from.
+#   * Versions are pinned, so builds are reproducible and scanners see real versions.
+#
+# Everything else mirrors the Alpine image: same tools (Debian package names), same
+# zsh/oh-my-zsh/powerlevel10k environment, same MOTD, root user, CMD zsh.
+
+ARG CTOP_VERSION=0.7.7
+ARG CALICOCTL_VERSION=3.33.0
+ARG TERMSHARK_VERSION=2.4.0
+ARG GRPCURL_VERSION=1.9.4
+ARG FORTIO_VERSION=1.76.0
+ARG WEBSOCAT_VERSION=1.14.1
+
+FROM golang:trixie AS builder
+ARG CTOP_VERSION CALICOCTL_VERSION TERMSHARK_VERSION GRPCURL_VERSION FORTIO_VERSION WEBSOCAT_VERSION
+ARG TARGETARCH
+ENV GOFLAGS=-trimpath CGO_ENABLED=0 GOBIN=/out
+
+# fortio's release pins golang.org/x/image and grpc versions with known CVEs; bump them.
+# fortio reads its version from the Go build info, so the bump is committed and the tag
+# moved onto it: the binary still reports the plain release version.
+RUN git clone --depth 1 -b "v${FORTIO_VERSION}" https://github.com/fortio/fortio /src/fortio \
+ && cd /src/fortio \
+ && go get golang.org/x/image@latest golang.org/x/net@latest google.golang.org/grpc@latest \
+ && go mod tidy \
+ && git -c user.name=build -c user.email=build@localhost commit -qam "bump x/image, x/net, grpc" \
+ && git tag -f "v${FORTIO_VERSION}" \
+ && go build -o /out/fortio .
+
+# grpcurl's release pins golang.org/x/net, grpc and go-jose versions with known CVEs; bump them.
+RUN git clone --depth 1 -b "v${GRPCURL_VERSION}" https://github.com/fullstorydev/grpcurl /src/grpcurl \
+ && cd /src/grpcurl \
+ && go get golang.org/x/net@latest google.golang.org/grpc@latest github.com/go-jose/go-jose/v4@latest \
+ && go mod tidy \
+ && go build -ldflags "-X main.version=v${GRPCURL_VERSION}" -o /out/grpcurl ./cmd/grpcurl
+
+# ctop's go.mod has replace directives (no go install); its docker client library is
+# bumped to a current one, which drops the 2020-era docker/containerd module tree.
+# The runc connector is dropped: ctop's code needs the runc 1.0 libcontainer API, whose
+# module carries known CVEs and cannot be upgraded (the API was removed in runc 1.1).
+# The docker connector, the one used in practice, is unaffected.
+RUN git clone --depth 1 -b "v${CTOP_VERSION}" https://github.com/bcicen/ctop /src/ctop \
+ && cd /src/ctop \
+ && rm connector/runc.go connector/collector/runc.go \
+ && go get github.com/fsouza/go-dockerclient@latest \
+      github.com/opencontainers/selinux@latest github.com/sirupsen/logrus@latest \
+ && go mod tidy \
+ && go build -ldflags "-X main.version=${CTOP_VERSION} -X main.build=v${CTOP_VERSION}" -o /out/ctop .
+
+# termshark pins 2022-era golang.org/x libraries; bump them before building.
+RUN git clone --depth 1 -b "v${TERMSHARK_VERSION}" https://github.com/gcla/termshark /src/termshark \
+ && cd /src/termshark \
+ && go get golang.org/x/crypto@latest golang.org/x/net@latest golang.org/x/sys@latest golang.org/x/text@latest \
+      golang.org/x/image@latest github.com/sirupsen/logrus@latest gopkg.in/yaml.v3@latest github.com/antchfx/xpath@latest \
+      github.com/klauspost/compress@latest \
+ && go mod tidy \
+ && go build -o /out/termshark ./cmd/termshark
+
+# calico is a monorepo without /v3 module paths, so it is built from a checkout; its
+# x/crypto, grpc and etcd client pins carry known CVEs and are bumped first.
+RUN git clone --depth 1 -b "v${CALICOCTL_VERSION}" https://github.com/projectcalico/calico /src/calico \
+ && cd /src/calico \
+ && go get golang.org/x/crypto@latest golang.org/x/net@latest google.golang.org/grpc@latest \
+      go.etcd.io/etcd/client/pkg/v3@latest go.etcd.io/etcd/client/v3@latest go.etcd.io/etcd/api/v3@latest \
+ && cd /src/calico/calicoctl \
+ && go build -ldflags "-X github.com/projectcalico/calico/pkg/buildinfo.Version=v${CALICOCTL_VERSION} \
+      -X github.com/projectcalico/calico/pkg/buildinfo.GitRevision=v${CALICOCTL_VERSION}" \
+      -o /out/calicoctl ./calicoctl
+
+# websocat is Rust; its static musl release binary is current and scanner-clean.
+RUN case "${TARGETARCH}" in \
+      amd64) WS_ARCH=x86_64-unknown-linux-musl ;; \
+      arm64) WS_ARCH=aarch64-unknown-linux-musl ;; \
+      *) echo "unsupported arch ${TARGETARCH}" >&2; exit 1 ;; \
+    esac \
+ && curl -fsSLo /out/websocat "https://github.com/vi/websocat/releases/download/v${WEBSOCAT_VERSION}/websocat.${WS_ARCH}" \
+ && chmod +x /out/websocat
+
+FROM debian:trixie-slim
+
+# Debian names of the Alpine packages; alphabetical, like the Alpine list.
+#   bind-tools -> bind9-dnsutils + bind9-host ; bird -> bird2 ; busybox-extras (telnet) -> inetutils-telnet ;
+#   conntrack-tools -> conntrack + conntrackd ; drill -> ldnsutils ; iputils -> iputils-* ;
+#   mtr -> mtr-tiny (plain mtr pulls GTK) ; net-snmp-tools -> snmp ; nmap-nping is inside nmap ;
+#   liboping -> oping ; scapy -> python3-scapy ; trippy is packaged (binary name: trip).
+#   libc6-compat is not needed on glibc. openssh -> openssh-client (no sshd in this image).
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    apache2-utils \
+    bash \
+    bind9-dnsutils \
+    bind9-host \
+    bird2 \
+    bridge-utils \
+    ca-certificates \
+    conntrack \
+    conntrackd \
+    cpio \
+    curl \
+    dhcping \
+    ethtool \
+    file \
+    fping \
+    git \
+    httpie \
+    iftop \
+    inetutils-telnet \
+    iperf \
+    iperf3 \
+    iproute2 \
+    ipset \
+    iptables \
+    iptraf-ng \
+    iputils-arping \
+    iputils-ping \
+    iputils-tracepath \
+    ipvsadm \
+    jq \
+    ldnsutils \
+    libcrypt-ssleay-perl \
+    libnet-ssleay-perl \
+    ltrace \
+    mtr-tiny \
+    netcat-openbsd \
+    nftables \
+    ngrep \
+    nmap \
+    oping \
+    openssh-client \
+    openssl \
+    procps \
+    python3-pip \
+    python3-scapy \
+    python3-setuptools \
+    snmp \
+    socat \
+    speedtest-cli \
+    strace \
+    swaks \
+    tcpdump \
+    tcptraceroute \
+    traceroute \
+    trippy \
+    tshark \
+    util-linux \
+    vim \
+    zsh \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /out/ctop      /usr/local/bin/ctop
+COPY --from=builder /out/calicoctl /usr/local/bin/calicoctl
+COPY --from=builder /out/termshark /usr/local/bin/termshark
+COPY --from=builder /out/grpcurl   /usr/local/bin/grpcurl
+COPY --from=builder /out/fortio    /usr/local/bin/fortio
+COPY --from=builder /out/websocat  /usr/local/bin/websocat
+
+# Setting User and Home
+USER root
+WORKDIR /root
+ENV HOSTNAME=netshoot
+
+# ZSH Themes (same setup as the Alpine image)
+RUN curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh | sh
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+COPY zshrc .zshrc
+COPY motd motd
+
+# Fix permissions for OpenShift and tshark
+RUN chmod -R g=u /root
+RUN chown root:root /usr/bin/dumpcap
+
+# Running ZSH
+CMD ["zsh"]
