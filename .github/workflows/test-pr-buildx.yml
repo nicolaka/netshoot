@@ -16,7 +16,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
 
       - name: Build amd64 image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
@@ -59,7 +59,7 @@ jobs:
         run: echo ${{ steps.buildx.outputs.platforms }}
 
       - name: Multi-arch build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
@@ -71,7 +71,7 @@ jobs:
           cache-to: type=gha,scope=alpine,mode=max
 
       - name: Multi-arch build (debian)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile.debian
