@@ -40,7 +40,8 @@ RUN git clone --depth 1 -b "v${GRPCURL_VERSION}" https://github.com/fullstorydev
  && go build -ldflags "-X main.version=v${GRPCURL_VERSION}" -o /out/grpcurl ./cmd/grpcurl
 
 # ctop's go.mod has replace directives (no go install); its docker client library is
-# bumped to a current one, which drops the 2020-era docker/containerd module tree.
+# bumped to a current one, which drops the 2020-era docker/containerd module tree, and so
+# is klauspost/compress, which that library pulls in.
 # The runc connector is dropped: ctop's code needs the runc 1.0 libcontainer API, whose
 # module carries known CVEs and cannot be upgraded (the API was removed in runc 1.1).
 # The docker connector, the one used in practice, is unaffected.
@@ -49,6 +50,7 @@ RUN git clone --depth 1 -b "v${CTOP_VERSION}" https://github.com/bcicen/ctop /sr
  && rm connector/runc.go connector/collector/runc.go \
  && go get github.com/fsouza/go-dockerclient@latest \
       github.com/opencontainers/selinux@latest github.com/sirupsen/logrus@latest \
+      github.com/klauspost/compress@latest \
  && go mod tidy \
  && go build -ldflags "-X main.version=${CTOP_VERSION} -X main.build=v${CTOP_VERSION}" -o /out/ctop .
 
