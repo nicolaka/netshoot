@@ -28,6 +28,7 @@ RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/a
     bridge-utils \
     busybox-extras \
     conntrack-tools \
+    coreutils \
     curl \
     dhcping \
     drill \
