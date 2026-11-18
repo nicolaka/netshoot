@@ -13,8 +13,8 @@
 ARG CTOP_VERSION=0.7.7
 ARG TERMSHARK_VERSION=2.4.0
 ARG GRPCURL_VERSION=1.9.4
-ARG FORTIO_VERSION=1.76.0
-ARG WEBSOCAT_VERSION=1.14.1
+ARG FORTIO_VERSION=1.76.1
+ARG WEBSOCAT_VERSION=1.14.2
 
 FROM golang:trixie AS builder
 ARG CTOP_VERSION TERMSHARK_VERSION GRPCURL_VERSION FORTIO_VERSION WEBSOCAT_VERSION
@@ -64,8 +64,8 @@ RUN git clone --depth 1 -b "v${TERMSHARK_VERSION}" https://github.com/gcla/terms
 # websocat is Rust; its static musl release binary is current and scanner-clean.
 # The checksums belong to WEBSOCAT_VERSION: update them together.
 RUN case "${TARGETARCH}" in \
-      amd64) WS_ARCH=x86_64-unknown-linux-musl  WS_SHA=66f8dd3a0394761556339117f8bb5123bddefd44e087af2a72ec22b0bd08d514 ;; \
-      arm64) WS_ARCH=aarch64-unknown-linux-musl WS_SHA=711a69576a2ff473fb01a90ffafb571c2ed019e55479d7ae71b12c2eadeb7011 ;; \
+      amd64) WS_ARCH=x86_64-unknown-linux-musl  WS_SHA=cd26f92cb507f620e2d54fe6e126f4dc191f3eee90f2b53bccf07eac0645ec84 ;; \
+      arm64) WS_ARCH=aarch64-unknown-linux-musl WS_SHA=cdd6b0bee24c81c537cb9ef257b433625355e0bbe002235f8df1e70acbd2c1dd ;; \
       *) echo "unsupported arch ${TARGETARCH}" >&2; exit 1 ;; \
     esac \
  && curl -fsSLo /out/websocat "https://github.com/vi/websocat/releases/download/v${WEBSOCAT_VERSION}/websocat.${WS_ARCH}" \
