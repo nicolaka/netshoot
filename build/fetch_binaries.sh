@@ -20,7 +20,7 @@ download() {
 CTOP_VERSION=0.7.7
 TERMSHARK_VERSION=2.4.0
 GRPCURL_VERSION=1.9.4
-FORTIO_VERSION=1.76.0
+FORTIO_VERSION=1.76.1
 
 get_ctop() {
   local sha
@@ -78,8 +78,8 @@ get_grpcurl() {
 get_fortio() {
   local sha
   case "$ARCH" in
-    amd64) sha=cb5907d2ff3b9bfe76d62c69f141d0b25b1d41c1b4c04c8434e8c0166a55844a ;;
-    arm64) sha=5258719ab9b2515a53f2435d4eb59364b4ebcaf61166de06959ed44fc4b8440d ;;
+    amd64) sha=1307fd6fdf32c92dc4f586040a8c27aff2e981fd9d20a90acdc723a967ffbbd6 ;;
+    arm64) sha=3ee035be255fbd492642dd3e3c47d39b9ca6c0a78ab94ff76134952660bcdc87 ;;
   esac
   download \
     "https://github.com/fortio/fortio/releases/download/v${FORTIO_VERSION}/fortio-linux_${ARCH}-${FORTIO_VERSION}.tgz" \
