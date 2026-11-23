@@ -9,6 +9,13 @@ Open a [GitHub issue](https://github.com/nicolaka/netshoot/issues) or contact th
 ## Using the image safely
 
 - Pin by **digest**, not `:latest`. Alpine package versions can still move when the image is rebuilt.
+- Release images are signed with [Sigstore](https://www.sigstore.dev/) keyless signing by the `release-buildx` workflow. Check a signature with [cosign](https://github.com/sigstore/cosign):
+
+  ```bash
+  cosign verify nicolaka/netshoot@sha256:<digest> \
+    --certificate-identity-regexp '^https://github\.com/nicolaka/netshoot/\.github/workflows/release-buildx\.yml@refs/tags/v' \
+    --certificate-oidc-issuer https://token.actions.githubusercontent.com
+  ```
 - Do not run netshoot as a permanent sidecar on every workload.
 - Prefer `kubectl debug` / ephemeral containers over privileged host-network sessions unless you need them.
 - The `nsenter` Docker recipe requires `--privileged` and a host path mount of `/var/run/docker/netns`. That expands what the session can reach.
