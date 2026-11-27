@@ -43,6 +43,7 @@ RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/a
     iproute2 \
     ipset \
     iptables \
+    iptables-legacy \
     iptraf-ng \
     iputils \
     ipvsadm \
