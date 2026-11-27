@@ -25,6 +25,7 @@ RUN echo "@testing https://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/a
     bash \
     bind-tools \
     bird \
+    bpftool \
     bridge-utils \
     busybox-extras \
     conntrack-tools \
